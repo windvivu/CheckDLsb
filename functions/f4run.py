@@ -45,8 +45,8 @@ def cSymbol(symbol:str) -> str:
 
 
 def sendTelegramMessage(message):
-    TOKEN = "7237333197:AAG_DXeJk6rE_hxFcgJpPmnuEfZu0ejGkYw"
-    chat_id = "5064020009"
+    TOKEN = "xxxx"
+    chat_id = "xxxxx"
     dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     message = f"[{dt_string}]:\n{message}"
     try:
