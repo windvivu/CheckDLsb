@@ -111,15 +111,14 @@ class SimpleCNN(nn.Module):
     def __init__(self, num_classes=10):
         super().__init__()
         self.conv1 = self.make_block(in_channels=3, out_channels=8)
-        self.conv1sb = self.make_block(in_channels=1, out_channels=16)
-        self.conv2 = self.make_block(in_channels=16, out_channels=32)
-        self.conv3 = self.make_block(in_channels=32, out_channels=64)
-        self.conv4 = self.make_block(in_channels=64, out_channels=128)
-        # self.conv5 = self.make_block(in_channels=64, out_channels=128)
+        self.conv2 = self.make_block(in_channels=8, out_channels=16)
+        self.conv3 = self.make_block(in_channels=16, out_channels=32)
+        self.conv4 = self.make_block(in_channels=32, out_channels=64)
+        self.conv5 = self.make_block(in_channels=64, out_channels=128)
 
         self.fc1 = nn.Sequential(
             nn.Dropout(p=0.5),
-            nn.Linear(in_features=6272, out_features=512),
+            nn.Linear(in_features=128, out_features=512),
             nn.LeakyReLU()
         )
         self.fc2 = nn.Sequential(
@@ -145,66 +144,72 @@ class SimpleCNN(nn.Module):
 
 
     def forward(self,x):
-        # x = self.conv1(x)
-        x = self.conv1sb(x)
+        x = self.conv1(x)
         x = self.conv2(x)
-        # x = self.conv3(x)
-        # x = self.conv4(x)
-        # x = self.conv5(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
 
         x = x.view(x.shape[0], -1) # flatten 4d to 2d
 
-        # x = self.fc1(x)
+        x = self.fc1(x)
         x = self.fc2(x)
         x = self.fc3(x)
 
         return x
 
 if __name__ == "__main__":
-	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	
+	type_run = 0 # 0: image, 1: sb  #################
 	
 	batch_size = 16
 	num_epochs = 100
 	
+	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
-	list2 = ["KAMA", "DEMA", "ADXR", "ULTOSC", "NATR","MFI", "EMA26", "ADX", "MINUS_DI", "WILLR", "DX", "MIDPRICE", "PLUS_DI", "CMO", "RSI"]
 	sys.path.append(_dir2)
-
-	# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-	if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")):
-		trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"))
-	else:
-		# tạo trainsetsb	
-		trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2)
-		# save trainsetsb to file by torch
-		torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
-	
-	# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-	if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")):
-		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"))
-	else:
-		# tạo testsetsb	
-		testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
-		# save testsetsb to file by torch
-		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
-
-
-	# trainset = RefDataset(root=os.path.join(_dir, "_no_use"))
-	# testset = RefDataset(root=os.path.join(_dir, "_no_use"), train=False)
-
 	from torch.utils.data import DataLoader
 	from tqdm import tqdm
-
-	train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
-	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
-
+	# check device
 	if torch.cuda.is_available():
 		device = torch.device("cuda")
 	else:
 		device = torch.device("cpu")
 
-	# model = SimpleCNN().to(device)
-	model = SimpleCNN(num_classes=3).to(device)
+	if type_run == 1:	
+		list2 = ["KAMA", "DEMA", "ADXR", "ULTOSC", "NATR","MFI", "EMA26", "ADX", "MINUS_DI", "WILLR", "DX", "MIDPRICE", "PLUS_DI", "CMO", "RSI"]
+
+		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
+		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")):
+			trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"))
+		else:
+			# tạo trainsetsb	
+			trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2)
+			# save trainsetsb to file by torch
+			torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
+	
+		# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
+		if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")):
+			testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"))
+		else:
+			# tạo testsetsb	
+			testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
+			# save testsetsb to file by torch
+			torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
+		
+		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+	
+	else:
+		
+		trainset = RefDataset(root=os.path.join(_dir, "_no_use"))
+		testset = RefDataset(root=os.path.join(_dir, "_no_use"), train=False)
+
+		train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+		test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+
+		model = SimpleCNN().to(device)
+
 
 	criterion = nn.CrossEntropyLoss()
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
