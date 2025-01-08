@@ -1,0 +1,80 @@
+Không thể có một mô hình hoàn chỉnh vì thế làm theo chiến lược sau:
+Phân lớp nhị phân, lớp 0, và lớp 1.
+- Lớp 0: không làm gì cả
+- Lớp 1: thực hiện hành đồng mơ vị thế (tăng hay giảm tuỳ mô hình)
+
+Vì lớp 0 không làm gì, để không nhầm với có làm gì gây tổn thất nên sẽ tạo mô hình
+phát hiện 0 không nhầm lẫn.
+Ví dụ một mô hình tồi và thiên kiến nhất Confusion Matrix:
+[[2196    0]
+ [ 717    0]]
+Với mô hình này lớp 0 có recall đạt max nhưn thật ra nó hoạt động kém.
+Suy ra model cho lớp 0 không quan trọng lắm, cứ mặc định tất cả phân loại 0?
+
+
+Lớp 1 là lớp hành động, không phát hiện được sẽ chỉ bỏ lỡ chữ không tổn thất.
+
+Cần tạo mô hình phát hiện lớp 1, tìm cách tăng độ chính xác mô hình này
+
+############
+Mỗi record trả về từ makeSampleXY của _MakeSample(timeSeries=True) phản ánh giá trị biến thiên của một chuỗi ngày.
+Mỗi record mang đặc tính riêng, không quan tâm record khác nữa.
+
+Giá trị mỗi field của record sẽ biến đổi ở mỗi thời điểm, mỗi khung thời gian, không cách nào nắm bắt. Cái cần thiết là nắm bắt
+nhưng thay đổi tương quan giữa các field, vì thế sẽ tự chuẩn hoá bằng cách:
+- Lấy giá trị lớn nhất trong record
+- Chi mỗi giá trị trong record co giá trị lớn nhất đó
+Tuy vậy nếu field nào có giá trị giao động trong khoảng bất biến thì nên để đó, không cần chuẩn hoá kiểu này
+
+-----
+Nếu dùng phương pháp trên để làm sample cho ML trogn scilit-learn, sẽ dẫn đến đa cộng tuyến giữa các field tạo thành từ timeSeries, gây overfitting
+Thử nghiệm không dùng timeseries - makeSampleXY của _MakeSample(timeSeries=False) để training trong ML. Còn  _MakeSample(timeSeries=True) sẽ dành cho Deaplearning sau
+Có một chút học tập từ timeSeries đó là sẽ vẫn giữ self-scale trong các field mà có giao động vô định
+
+Mơi nghĩ ra phương án vẫn dùng timeseries - makeSampleXY. Gom các các fiel biến đổi theo thời gian thành 1 bằng PCA giảm chiều dữ iệu
+
+
+#### một số chỉ báo sẽ xem xet sau
+HT_TRENDLINE - Hilbert Transform - Instantaneous Trendline - báo không có khoảng period
+SAREXT - có giá trị âm, bóp méo khoảng chung của đồ thị nên tạm không dùng
+MAVP - có lỗi gì đó
+MAMA - không có period cụ thể
+
+# so sánh hiệu quả trên mẫu BNBUSDT.
+Model           scale   stable_acurracy     precision0    recall0  f1-score0    precision1    recall1  f1-score1  FlasePositive
+LogRegression   max     0.742 (+/- 0.012)   0.78           0.68     0.73        0.34          0.46      0.39        1027
+LogRegression   minmax  0.745 (+/- 0.000)   0.77           0.50     0.60        0.29          0.58      0.39        1607
+LogRegression   none    0.745 (+/- 0.000)   0.78           0.52     0.62        0.30          0.58      0.40        1527
+RandomForestR   none    0.382 (+/- 0.315)   0.91           0.83     0.87        0.62          0.77      0.69        543
+RandomForestR*  max     0.562 (+/- 0.139)   0.86           0.82     0.84        0.55          0.63      0.59        589
+RandomForestR*  minmax  0.585 (+/- 0.055)   0.83           0.81     0.82        0.49          0.52      0.50        604
+RandomForestR(1)minmax  0.590 (+/- 0.052)   0.83           0.82     0.82        0.51          0.52      0.51        570
+RandomForestR(2)max     0.551 (+/- 0.152)   0.86           0.82     0.84        0.55          0.63      0.59        586
+
+(1)RandomForestR minmax tunning 
+{'max_depth': None, 'max_features': 'log2', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}
+(2)RandomForestR max tunning
+{'max_depth': None, 'max_features': 'log2', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}
+==> Kết luận tạm thời: dùng RandomForestR(1) scale minmax
+
+#### quy trình train và predict với RandomForestR
+1. Có df [open, high, low, close, volume]
+2. Add indicator vào df -> dfwthIndicator
+3. Tạo SampleXYseri từ dfwthIndicator: 
+    spl = SampleXYtseries(dfwthIndicator, typeMake=2 , features=listIndi, typeScale='minmax', pastCandle=14, foreCast=5, thresoldDiff=0.02)
+3. Tạo model cùng với spl: md = ModelRFRegressorClassifier(spl2, class_weight='balanced', n_estimators=300, max_depth=None, min_samples_split = 2, min_samples_leaf = 1, max_features = 'log2', internalInfo=False)
+4. Chạy traing model: md.ProcessDataPCAtraining + md.trainModel
+### quy trình predict:
+1. Có df [open, high, low, close, volume]
+2. Add indicator vào df -> dfwthIndicator
+3. Predict: ypred = md.ProcessPredict(df, realDT=True)
+
+**Lưu ý quan trọng khi lấy dữ liệu realtime: Nến cuối cùng là nến chưa thành hình. Lý do là vì giá close vẫn đang biến đổi, vì thế ngoài giá open ra, các giá khác của nến này mới chỉ là tạm thời.
+Vì vậy nến cuối này không nên dùng để xử lý. Chỉ xử lý nến cuối này khi nến này trở thành nến áp cuối (tức nến cuối mới vừa mới xuất hiện).
+
+-------------
+Nhận thấy nếu mẫu training không sát thời gian với mẫu test thì hiệu quả không cao. Thậm chí rất thấp. Huhu
+Thực tế sẽ bị mất các dòng gần mẫu cần dự đoán. Do label cần phải dựa vào dữ liệu tương lai mà dữ liệu tương lai 
+thì chưa có, không như trong trường hợp backtest, ta đã có dữ liệu tương lai.
+Giải pháp là tự dự đoán cho chính các label đó rồi dùng nó để làm mẫu training được không? Số lượng tự dự đoán
+này không nhiều nên hi vọng không sai sót lắm. -> đã áp dụng và hiệu quả thấp. Thất bại rôi. huhhu
