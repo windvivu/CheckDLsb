@@ -144,6 +144,9 @@ import torch.nn as nn
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes=10):
         super().__init__()
+
+        self.ver = 'img0'
+
         self.conv1 = self.make_block(in_channels=3, out_channels=8)
         self.conv2 = self.make_block(in_channels=8, out_channels=16)
         self.conv3 = self.make_block(in_channels=16, out_channels=32)
@@ -195,6 +198,9 @@ class SimpleCNN(nn.Module):
 class SimpleCNNsb(nn.Module):
     def __init__(self, num_classes=3):
         super().__init__()
+
+        self.ver = 'sb0'
+
         # First conv block
         self.conv1 = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, padding=1),
@@ -239,10 +245,19 @@ class SimpleCNNsb(nn.Module):
        x = self.fc(x)
        return x
 
+# save model
+def savecheckpoint(model, ver, bestacu, filename):
+    checkpoint = {
+      "model": model,
+      "ver": ver,
+	  "accu": bestacu
+	}
+    torch.save(checkpoint, filename)
+
 if __name__ == "__main__":
 	
 	type_run = 0 # 0 -> sb; 1 -> real_image  #################
-	reuse_sbdtset = False
+	reuse_sbdtset = True
 	
 	batch_size = 16
 	num_epochs = 10000
@@ -297,7 +312,14 @@ if __name__ == "__main__":
 		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-		model = SimpleCNNsb().to(device)
+		# checl old model file exist
+		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
+			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=True)
+			model = checkpoint["model"]
+			bestaccu = checkpoint["accu"]
+		else:
+			model = SimpleCNNsb().to(device)
+			bestaccu = 0
 
 	else:
 		
@@ -321,8 +343,15 @@ if __name__ == "__main__":
 		train_dataloader = DataLoader(trainset, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 		test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-		model = SimpleCNN().to(device)
-
+		# checl old model file exist
+		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
+			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=True)
+			model = checkpoint["model"]
+			bestaccu = checkpoint["accu"]
+		else:
+			model = SimpleCNN().to(device)
+			bestaccu = 0
+		
 	# ** Use weighted loss
 	# Without weights: Model might achieve 90% accuracy by just predicting majority class
 	# With weights: Model forced to learn minority classes better
@@ -369,9 +398,10 @@ if __name__ == "__main__":
 		
 		if accu > bestaccu:
 			bestaccu = accu
-			# savecheckpoint(model, os.path.join(savepath, "bestcheckpoint.pt"))
-			# with open(os.path.join(savepath, "bestmodel.txt"), "w") as f:
-			# 	f.write(str(bestaccu))
+			savecheckpoint(model, model.ver, bestaccu, os.path.join(dir, "_no_use/bestcheckpoint.pt"))
+			with open(os.path.join(dir, "_no_use/bestcheckpoint.txt"), "w") as f:
+				f.write(str(bestaccu))
+		
 		# savecheckpoint(model, os.path.join(savepath, "lastcheckpoint.pt"))
 		# with open(os.path.join(savepath, "lastmodel.txt"), "w") as f:
 		# 	f.write(str(accu))
