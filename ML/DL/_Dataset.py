@@ -179,7 +179,10 @@ class SimpleCNN(nn.Module):
             nn.MaxPool2d(kernel_size=2)
         )
 
-
+    @property
+    def ver(self):
+       return 'img0'
+	
     def forward(self,x):
         x = self.conv1(x)
         x = self.conv2(x)
@@ -198,8 +201,6 @@ class SimpleCNN(nn.Module):
 class SimpleCNNsb(nn.Module):
     def __init__(self, num_classes=3):
         super().__init__()
-
-        self.ver = 'sb0'
 
         # First conv block
         self.conv1 = nn.Sequential(
@@ -236,6 +237,9 @@ class SimpleCNNsb(nn.Module):
             nn.Linear(256, num_classes)
         )
 
+    @property
+    def ver(self):
+       return 'sb0'
 
     def forward(self,x):
        x = self.conv1(x)
