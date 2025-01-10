@@ -241,11 +241,11 @@ class SimpleCNNsb(nn.Module):
 
 if __name__ == "__main__":
 	
-	type_run = 0 # 0: image, 1: sb  #################
-	reuse_sbdtset = True
+	type_run = 0 # 0 -> sb; 1 -> real_image  #################
+	reuse_sbdtset = False
 	
 	batch_size = 16
-	num_epochs = 100
+	num_epochs = 10000
 	
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
