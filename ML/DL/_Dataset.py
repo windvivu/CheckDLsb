@@ -267,8 +267,7 @@ if __name__ == "__main__":
 			# save testsetsb to file by torch
 			torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 		
-		class_weights = trainsetsb.calculate_class_distribution(printOut=False)
-		class_weights.to(device)
+		class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
 
 		weights = []
 		for label in trainsetsb.targets:
@@ -292,8 +291,7 @@ if __name__ == "__main__":
 		trainset = RefDataset(root=os.path.join(_dir, "_no_use"))
 		testset = RefDataset(root=os.path.join(_dir, "_no_use"), train=False)
 
-		class_weights = trainset.calculate_class_distribution(printOut=False)
-		class_weights.to(device)
+		class_weights = trainset.calculate_class_distribution(printOut=False).to(device)
 		
 		weights = []
 		for label in trainset.targets:
