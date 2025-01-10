@@ -314,7 +314,7 @@ if __name__ == "__main__":
 
 		# checl old model file exist
 		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
-			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=True)
+			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=False)
 			model = checkpoint["model"]
 			bestaccu = checkpoint["accu"]
 		else:
@@ -345,7 +345,7 @@ if __name__ == "__main__":
 
 		# checl old model file exist
 		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
-			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=True)
+			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=False)
 			model = checkpoint["model"]
 			bestaccu = checkpoint["accu"]
 		else:
