@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
 
 	criterion = nn.CrossEntropyLoss()
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
