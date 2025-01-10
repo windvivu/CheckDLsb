@@ -231,6 +231,7 @@ class SimpleCNNsb(nn.Module):
 if __name__ == "__main__":
 	
 	type_run = 0 # 0: image, 1: sb  #################
+	reuse_sbdtset = True
 	
 	batch_size = 16
 	num_epochs = 100
@@ -250,7 +251,7 @@ if __name__ == "__main__":
 		list2 = ["KAMA", "DEMA", "ADXR", "ULTOSC", "NATR","MFI", "EMA26", "ADX", "MINUS_DI", "WILLR", "DX", "MIDPRICE", "PLUS_DI", "CMO", "RSI"]
 
 		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")):
+		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")) and reuse_sbdtset:
 			trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"), weights_only=False)
 		else:
 			# tạo trainsetsb	
@@ -259,7 +260,7 @@ if __name__ == "__main__":
 			torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
 	
 		# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-		if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")):
+		if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) and reuse_sbdtset:
 			testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 		else:
 			# tạo testsetsb	
@@ -315,7 +316,7 @@ if __name__ == "__main__":
 	# With weights: Model forced to learn minority classes better
 	criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
