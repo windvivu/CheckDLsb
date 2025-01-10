@@ -51,6 +51,23 @@ class SbDataset(Dataset):
 	
 	def showplotly(self, index):
 		self.spl.plotlySampleX(index)
+
+	def calculate_class_distribution(self, printOut=True):
+		labels = self.Y
+		unique_labels, counts = torch.unique(labels, return_counts=True)
+		percentages = counts.float() / len(self.Y) * 100
+		# Print distribution
+		if printOut:
+			print("\nClass Distribution:")
+			for label, count, percent in zip(unique_labels, counts, percentages):
+				print(f"Class {label}: {count} samples ({percent:.2f}%)")
+		
+		class_weights = len(labels) / (len(unique_labels) * counts.float())
+		return class_weights
+	
+	@property
+	def targets(self):
+		return self.Y
 	
 	@property
 	def classes(self):
@@ -97,6 +114,23 @@ class RefDataset(Dataset):
 	
 	def __len__(self):
 		return len(self.dataset)
+	
+	def calculate_class_distribution(self, printOut=True):
+		labels = torch.tensor(self.dataset.targets)
+		unique_labels, counts = torch.unique(labels, return_counts=True)
+		percentages = counts.float() / len(self.dataset.targets) * 100
+		# Print distribution
+		if printOut:
+			print("\nClass Distribution:")
+			for label, count, percent in zip(unique_labels, counts, percentages):
+				print(f"Class {label}: {count} samples ({percent:.2f}%)")
+		
+		class_weights = len(labels) / (len(unique_labels) * counts.float())
+		return class_weights
+	
+	@property
+	def targets(self):
+		return self.dataset.targets
 	
 	@property
 	def classes(self):
@@ -196,7 +230,7 @@ class SimpleCNNsb(nn.Module):
 
 if __name__ == "__main__":
 	
-	type_run = 1 # 0: image, 1: sb  #################
+	type_run = 0 # 0: image, 1: sb  #################
 	
 	batch_size = 16
 	num_epochs = 100
@@ -204,7 +238,7 @@ if __name__ == "__main__":
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
 	sys.path.append(_dir2)
-	from torch.utils.data import DataLoader
+	from torch.utils.data import DataLoader, WeightedRandomSampler
 	from tqdm import tqdm
 	# check device
 	if torch.cuda.is_available():
@@ -212,7 +246,7 @@ if __name__ == "__main__":
 	else:
 		device = torch.device("cpu")
 
-	if type_run == 1:	
+	if type_run == 0:	
 		list2 = ["KAMA", "DEMA", "ADXR", "ULTOSC", "NATR","MFI", "EMA26", "ADX", "MINUS_DI", "WILLR", "DX", "MIDPRICE", "PLUS_DI", "CMO", "RSI"]
 
 		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
@@ -233,7 +267,21 @@ if __name__ == "__main__":
 			# save testsetsb to file by torch
 			torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 		
-		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+		class_weights = trainsetsb.calculate_class_distribution(printOut=False)
+
+		weights = []
+		for label in trainsetsb.targets:
+			weights.append(class_weights[label])
+
+		# ** Use WeightedRandomSampler
+		sampler = WeightedRandomSampler(
+    	weights=weights,
+    	num_samples=len(weights),
+    	replacement=True
+		)
+
+		# with sampler,  shuffle must be False
+		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 		model = SimpleCNNsb().to(device)
@@ -243,13 +291,30 @@ if __name__ == "__main__":
 		trainset = RefDataset(root=os.path.join(_dir, "_no_use"))
 		testset = RefDataset(root=os.path.join(_dir, "_no_use"), train=False)
 
-		train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
+		class_weights = trainset.calculate_class_distribution(printOut=False)
+		
+		weights = []
+		for label in trainset.targets:
+			weights.append(class_weights[label])
+		
+		# ** Use WeightedRandomSampler
+		sampler = WeightedRandomSampler(
+    	weights=weights,
+    	num_samples=len(weights),
+    	replacement=True
+		)
+
+		# with sampler,  shuffle must be False
+		train_dataloader = DataLoader(trainset, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 		test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 		model = SimpleCNN().to(device)
 
+	# ** Use weighted loss
+	# Without weights: Model might achieve 90% accuracy by just predicting majority class
+	# With weights: Model forced to learn minority classes better
+	criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-	criterion = nn.CrossEntropyLoss()
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
 
 	total_batch = len(train_dataloader)
