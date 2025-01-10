@@ -259,7 +259,7 @@ if __name__ == "__main__":
 	type_run = 0 # 0 -> sb; 1 -> real_image  #################
 	reuse_sbdtset = True
 	
-	batch_size = 32
+	batch_size = 64
 	num_epochs = 100000
 	
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -357,7 +357,7 @@ if __name__ == "__main__":
 	# With weights: Model forced to learn minority classes better
 	criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, weight_decay=1e-5)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
