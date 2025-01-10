@@ -67,7 +67,7 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
 #   Adjusted learning rate
 #   Added scheduler
 
-Add scheduler after optimizer
+# Add scheduler after optimizer
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
     mode='max',        # Look for maximum accuracy
