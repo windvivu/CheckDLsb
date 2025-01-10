@@ -197,33 +197,44 @@ class SimpleCNNsb(nn.Module):
         super().__init__()
         # First conv block
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.MaxPool2d(2)
+            nn.Dropout2d(0.2),
+            nn.MaxPool2d(2),
         )
 
 		# Second conv block
         self.conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(2)
+            nn.Dropout2d(0.3),
+            nn.MaxPool2d(2),
         )
+
+		# Third conv block
+        self.conv3 = nn.Sequential(
+			nn.Conv2d(64, 128, kernel_size=3, padding=1),
+			nn.BatchNorm2d(128),
+			nn.ReLU(),
+			nn.Dropout2d(0.4),
+			# nn.MaxPool2d(2),
+		)
 
 		# Fully connected layers
         self.fc = nn.Sequential(
-            nn.Dropout(0.3),
-            nn.Linear(32 * 4 * 4, 64),
+            nn.Linear(128 * 4 * 4, 256),
             nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(64, num_classes)
+            nn.Dropout(0.5),
+            nn.Linear(256, num_classes)
         )
 
 
     def forward(self,x):
        x = self.conv1(x)
        x = self.conv2(x)
+       x = self.conv3(x)
        x = x.view(x.size(0), -1)  # Flatten
        x = self.fc(x)
        return x
@@ -247,8 +258,9 @@ if __name__ == "__main__":
 	else:
 		device = torch.device("cpu")
 
-	if type_run == 0:	
-		list2 = ["KAMA", "DEMA", "ADXR", "ULTOSC", "NATR","MFI", "EMA26", "ADX", "MINUS_DI", "WILLR", "DX", "MIDPRICE", "PLUS_DI", "CMO", "RSI"]
+	if type_run == 0:
+
+		list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR", "CMO"]
 
 		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
 		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")) and reuse_sbdtset:
