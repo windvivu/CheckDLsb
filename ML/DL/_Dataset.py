@@ -402,7 +402,7 @@ if __name__ == "__main__":
 		
 		if accu > bestaccu:
 			bestaccu = accu
-			savecheckpoint(model, model.ver, bestaccu, os.path.join(dir, "_no_use/bestcheckpoint.pt"))
+			savecheckpoint(model, bestaccu, os.path.join(dir, "_no_use/bestcheckpoint.pt"))
 			with open(os.path.join(dir, "_no_use/bestcheckpoint.txt"), "w") as f:
 				f.write(str(bestaccu))
 		
