@@ -310,7 +310,7 @@ if __name__ == "__main__":
 
 		# with sampler,  shuffle must be False
 		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
-		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+		test_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 		# checl old model file exist
 		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
