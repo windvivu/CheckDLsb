@@ -179,10 +179,7 @@ class SimpleCNN(nn.Module):
             nn.MaxPool2d(kernel_size=2)
         )
 
-    @property
-    def ver(self):
-       return 'img0'
-	
+
     def forward(self,x):
         x = self.conv1(x)
         x = self.conv2(x)
@@ -201,6 +198,8 @@ class SimpleCNN(nn.Module):
 class SimpleCNNsb(nn.Module):
     def __init__(self, num_classes=3):
         super().__init__()
+
+        self.ver = 'sb0'
 
         # First conv block
         self.conv1 = nn.Sequential(
@@ -237,9 +236,6 @@ class SimpleCNNsb(nn.Module):
             nn.Linear(256, num_classes)
         )
 
-    @property
-    def ver(self):
-       return 'sb0'
 
     def forward(self,x):
        x = self.conv1(x)
@@ -250,9 +246,10 @@ class SimpleCNNsb(nn.Module):
        return x
 
 # save model
-def savecheckpoint(model, bestacu, filename):
+def savecheckpoint(model, ver, bestacu, filename):
     checkpoint = {
       "model": model,
+      "ver": ver,
 	  "accu": bestacu
 	}
     torch.save(checkpoint, filename)
@@ -260,7 +257,7 @@ def savecheckpoint(model, bestacu, filename):
 if __name__ == "__main__":
 	
 	type_run = 0 # 0 -> sb; 1 -> real_image  #################
-	reuse_sbdtset = True
+	reuse_sbdtset = False
 	
 	batch_size = 16
 	num_epochs = 10000
@@ -401,7 +398,7 @@ if __name__ == "__main__":
 		
 		if accu > bestaccu:
 			bestaccu = accu
-			savecheckpoint(model, bestaccu, os.path.join(dir, "_no_use/bestcheckpoint.pt"))
+			savecheckpoint(model, model.ver, bestaccu, os.path.join(_dir, "_no_use/bestcheckpoint.pt"))
 			with open(os.path.join(dir, "_no_use/bestcheckpoint.txt"), "w") as f:
 				f.write(str(bestaccu))
 		
