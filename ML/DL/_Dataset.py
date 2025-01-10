@@ -257,7 +257,7 @@ def savecheckpoint(model, ver, bestacu, filename):
 if __name__ == "__main__":
 	
 	type_run = 0 # 0 -> sb; 1 -> real_image  #################
-	reuse_sbdtset = False
+	reuse_sbdtset = True
 	
 	batch_size = 16
 	num_epochs = 10000
