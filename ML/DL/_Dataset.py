@@ -259,7 +259,7 @@ if __name__ == "__main__":
 	type_run = 0 # 0 -> sb; 1 -> real_image  #################
 	reuse_sbdtset = True
 	
-	batch_size = 64
+	batch_size = 16
 	num_epochs = 100000
 	
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -310,7 +310,7 @@ if __name__ == "__main__":
 
 		# with sampler,  shuffle must be False
 		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
-		test_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 		# checl old model file exist
 		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
