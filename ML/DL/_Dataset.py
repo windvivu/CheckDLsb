@@ -230,7 +230,7 @@ if __name__ == "__main__":
 
 		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
 		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")):
-			trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"))
+			trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"), weights_only=False)
 		else:
 			# tạo trainsetsb	
 			trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2)
@@ -239,7 +239,7 @@ if __name__ == "__main__":
 	
 		# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
 		if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")):
-			testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"))
+			testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 		else:
 			# tạo testsetsb	
 			testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
@@ -263,7 +263,7 @@ if __name__ == "__main__":
 
 
 	criterion = nn.CrossEntropyLoss()
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
