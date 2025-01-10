@@ -225,12 +225,12 @@ class SimpleCNNsb(nn.Module):
 			nn.BatchNorm2d(128),
 			nn.ReLU(),
 			nn.Dropout2d(0.4),
-			# nn.MaxPool2d(2),
+			nn.MaxPool2d(2),
 		)
 
 		# Fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(128 * 4 * 4, 256),
+            nn.Linear(128 * 2 * 2, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(256, num_classes)
