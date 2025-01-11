@@ -52,8 +52,8 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	# trainsetsb.TURN2UP()
-	# testsetsb.TURN2UP()
+	trainsetsb.TURN2UP()
+	testsetsb.TURN2UP()
 
 	if trainsetsb.turned != testsetsb.turned:
 		raise ValueError("Trainset and testset must be turned the same way")
@@ -77,7 +77,10 @@ if __name__ == "__main__":
 		model = checkpoint["model"]
 		bestaccu = checkpoint["accu"]
 	else:
-		model = SimpleCNNsb().to(device)
+		if trainsetsb.turned == '':
+			model = SimpleCNNsb().to(device)
+		else:
+			model = SimpleCNNsb(num_classes=2).to(device)
 		bestaccu = 0
 
 		
@@ -130,6 +133,12 @@ if __name__ == "__main__":
 		
 		if accu > bestaccu:
 			bestaccu = accu
-			savecheckpoint(model, model.ver, list2, bestaccu, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
+			info = {
+				'ver': model.ver, 
+				'indi': list2, 
+				'bestacu': bestaccu,
+				'classes': trainsetsb.class_to_idx2
+			}
+			savecheckpoint(model, info, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
 			with open(os.path.join(_dir, "_no_use/bestcheckpoint.txt"), "w") as f:
 				f.write(str(bestaccu))

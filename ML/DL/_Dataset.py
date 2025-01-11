@@ -151,18 +151,18 @@ class SbDataset(Dataset):
 	
 	@property
 	def class_to_idx(self):
-		if self.typeMake == 2:
+		if self.typeMake == 2 or self.turned == 'up':
 			return {0: 0, 1: 1}
-		elif self.typeMake == -2:
+		elif self.typeMake == -2 or self.turned == 'down':
 			return {0: 0, -1: 1}
 		else:
 			return {0: 0, -1: 1, 1: 2}
 	
 	@property
 	def class_to_idx2(self):
-		if self.typeMake == 2:
+		if self.typeMake == 2 or self.turned == 'up':
 			return {'None': 0, 'Up': 1}
-		elif self.typeMake == -2:
+		elif self.typeMake == -2 or self.turned == 'down':
 			return {'None': 0, 'Down': 1}
 		else:
 			return {'None': 0, 'Down': 1, 'Up': 2}

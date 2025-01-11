@@ -52,11 +52,9 @@ class SimpleCNNsb(nn.Module):
        return x
 
 # save model
-def savecheckpoint(model, ver, indi, bestacu, filename):
+def savecheckpoint(model, info:dict, filename):
     checkpoint = {
       "model": model,
-      "ver": ver,
-	  "indi": indi,
-	  "accu": bestacu
+      "info": info
 	}
     torch.save(checkpoint, filename)
