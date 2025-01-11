@@ -3,3 +3,4 @@ data/BNfuture/*.db
 ML/_no_use/cifar-10-batches-py/
 ML/_no_use/cifar-10-python.tar.gz
 ML/_no_use/*.pth
+ML/_no_use/*.chk
