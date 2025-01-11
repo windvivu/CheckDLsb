@@ -3,7 +3,7 @@ import sys
 import torch
 from torch.utils.data import Dataset
 class SbDataset(Dataset):
-	def __init__(self, root, datafolder, symbol, timeframe, listIndi, train=True, typeMake=3, testsize=1000):
+	def __init__(self, root, datafolder, symbol, timeframe, listIndi, train=True, typeMake=3, testsize=1000, label='close', pastCandle=15, foreCast=5, thresoldDiff=0.02):
 		sys.path.append(root)
 		import functions.getDTsqlite as mysqlite
 		from signals._classMytalib import addIndicatorList
@@ -17,12 +17,15 @@ class SbDataset(Dataset):
 		self.train = train
 		self.typeMake = typeMake
 
-		df = mysqlite.getDTsqlite(os.path.join(root, datafolder), symbol=symbol, timeframe=timeframe)
-		df = addIndicatorList(df, listIndi)
-		self.spl = SampleXYtseries(data=df, typeMake=typeMake, features=listIndi, label='close', pastCandle=15, foreCast=5, thresoldDiff=0.02, typeScale='minmax')
-		print("Processing data to matrix...")
-		X, Y = self.spl.PROCESSMATRIX(realDT=False, showProgress=True, square=True)
-		
+		self.label = label
+		self.pastCandle = pastCandle
+		self.foreCast = foreCast
+		self.thresoldDiff = thresoldDiff
+
+		self.Y = None
+
+		X, Y = self._proccessdt(symbol, timeframe)
+				
 		if train:
 			self.X = X[:-testsize]
 			self.Y = Y[:-testsize]
@@ -43,11 +46,39 @@ class SbDataset(Dataset):
 
 		self.Y = torch.tensor(self.Y, dtype=torch.int)	
 		
+	def _proccessdt(self, symbol, timeframe):
+		sys.path.append(self.root)
+		import functions.getDTsqlite as mysqlite
+		from signals._classMytalib import addIndicatorList
+		from ML._MakeSample import SampleXYtseries
+
+		df = mysqlite.getDTsqlite(os.path.join(self.root, self.datafolder), symbol=symbol, timeframe=timeframe)
+		df = addIndicatorList(df, self.listIndi)
+		self.spl = SampleXYtseries(data=df, typeMake=self.typeMake, features=self.listIndi, label=self.label, pastCandle=self.pastCandle, foreCast=self.foreCast, thresoldDiff=self.thresoldDiff, typeScale='minmax')
+		print("Processing data to matrix...")
+		X, Y = self.spl.PROCESSMATRIX(realDT=False, showProgress=True, square=True)
+
+		return X, Y
+	
 	def __getitem__(self, index):
 		return self.X[index], self.Y[index].item()
 
 	def __len__(self):
 		return len(self.X)
+	
+	def ADDMORETRAINDT(self, symbol, timeframe):
+		if self.Y is None:
+			raise ValueError("You must create train dataset first!")
+		
+		X, Y = self._proccessdt(symbol, timeframe)
+		X = torch.tensor(X, dtype=torch.float32)
+		X = X.unsqueeze(1)
+		Y = torch.tensor(Y, dtype=torch.int)
+
+		# add to current traine dataset
+		self.X = torch.cat((self.X, X), 0)
+		self.Y = torch.cat((self.Y, Y), 0)
+
 	
 	def showplotly(self, index):
 		self.spl.plotlySampleX(index)
@@ -192,6 +223,12 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
+	trainsetsb.ADDMORETRAINDT("BNB/USDT", "4h")
+	torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb_more.pth"))
+
+	trainsetsb.calculate_class_distribution(printOut=True)
+	exit()
+
 	class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
 	weights = []
 	for label in trainsetsb.targets:
