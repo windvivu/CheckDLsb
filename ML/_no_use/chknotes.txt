@@ -1,6 +1,7 @@
 bestcheckpoint001.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, không có sampler weight. Accu là 0.467
 bestcheckpoint002.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, có sampler weight. Accu là 0.385
-bestcheckpoint002.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, có sampler weight. Accu là 0.391
+bestcheckpoint003.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, có sampler weight. Accu là 0.391
+bestcheckpoint004.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, turn 2 class: up and none, có sampler weight. Accu là 0.55
 
 model train:
 

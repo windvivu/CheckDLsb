@@ -52,8 +52,8 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	trainsetsb.TURN2UP()
-	testsetsb.TURN2UP()
+	trainsetsb.TURN2DOWN()
+	testsetsb.TURN2DOWN()
 
 	if trainsetsb.turned != testsetsb.turned:
 		raise ValueError("Trainset and testset must be turned the same way")
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 	# With weights: Model forced to learn minority classes better
 	criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
@@ -137,7 +137,8 @@ if __name__ == "__main__":
 				'ver': model.ver, 
 				'indi': list2, 
 				'bestacu': bestaccu,
-				'classes': trainsetsb.class_to_idx2
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
 			}
 			savecheckpoint(model, info, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
 			with open(os.path.join(_dir, "_no_use/bestcheckpoint.txt"), "w") as f:

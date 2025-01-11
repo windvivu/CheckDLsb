@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint003.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint004.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
@@ -36,7 +36,8 @@ if __name__ == "__main__":
 		print("No testset file found")
 		exit()
 
-
+		
+	testsetsb.TURN2UP()
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 	# checl old model file exist
 	if os.path.exists(os.path.join(_dir, pathCheckpoint)):

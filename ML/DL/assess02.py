@@ -123,7 +123,8 @@ if __name__ == "__main__":
 				'ver': model.ver, 
 				'indi': list2, 
 				'bestacu': bestaccu,
-				'classes': trainsetsb.class_to_idx2
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
 			}
 			savecheckpoint(model, info, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
 			with open(os.path.join(_dir, "_no_use/bestcheckpoint.txt"), "w") as f:
