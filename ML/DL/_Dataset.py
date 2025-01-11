@@ -91,110 +91,8 @@ class SbDataset(Dataset):
 		else:
 			return {'None': 0, 'Down': 1, 'Up': 2}
 
-class RefDataset(Dataset):
-	def __init__(self, root, train=True):
-		from torchvision.transforms import ToTensor, Resize, Compose
-		import torchvision.datasets as dts
-		
-		self.train = train
-		
-		transform = Compose([Resize((32,32)), ToTensor()])
-		self.dataset = dts.CIFAR10(root=root, train=train, download=True, transform=transform)
-	
-	def __getitem__(self, index):
-		# return imagetensor, label 
-		# De thuc hien resize, totensor, convert("RGB"). Conver RGB này để tránh gặp
-		# ảnh có 4 kênh màu (1 kênh trong suốt) thay vì 3 kênh
-		# from torchvision.transforms import ToTensor, Resize
-		# img = self.transform(img) ; transform =Compose([Resize((x,y)), ToTensor()])
-		#  ảnh sẽ có dạng (3,x,y)
-		# không tính các bộ nhỏ như CIFA thì ảnh chuẩn hiện nay thường là 3x224x224
-		# lý do là 224 chia hết 32. Bộ nhỏ CIFA kích thước 3x32x32
-		return self.dataset[index] 
-	
-	def __len__(self):
-		return len(self.dataset)
-	
-	def calculate_class_distribution(self, printOut=True):
-		labels = torch.tensor(self.dataset.targets)
-		unique_labels, counts = torch.unique(labels, return_counts=True)
-		percentages = counts.float() / len(self.dataset.targets) * 100
-		# Print distribution
-		if printOut:
-			print("\nClass Distribution:")
-			for label, count, percent in zip(unique_labels, counts, percentages):
-				print(f"Class {label}: {count} samples ({percent:.2f}%)")
-		
-		class_weights = len(labels) / (len(unique_labels) * counts.float())
-		return class_weights
-	
-	@property
-	def targets(self):
-		return self.dataset.targets
-	
-	@property
-	def classes(self):
-		return self.dataset.classes
-	
-	@property
-	def class_to_idx(self):
-		return self.dataset.class_to_idx
-
 import torch.nn as nn
-class SimpleCNN(nn.Module):
-    def __init__(self, num_classes=10):
-        super().__init__()
 
-        self.ver = 'img0'
-
-        self.conv1 = self.make_block(in_channels=3, out_channels=8)
-        self.conv2 = self.make_block(in_channels=8, out_channels=16)
-        self.conv3 = self.make_block(in_channels=16, out_channels=32)
-        self.conv4 = self.make_block(in_channels=32, out_channels=64)
-        self.conv5 = self.make_block(in_channels=64, out_channels=128)
-
-        self.fc1 = nn.Sequential(
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=128, out_features=512),
-            nn.LeakyReLU()
-        )
-        self.fc2 = nn.Sequential(
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=512, out_features=1024),
-            nn.LeakyReLU()
-        )
-        self.fc3 = nn.Sequential(
-            nn.Dropout(p=0.5),
-            nn.Linear(in_features=1024, out_features=num_classes),
-        )
-
-    def make_block(self, in_channels, out_channels):
-        return nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=1, padding="same"),
-            nn.BatchNorm2d(num_features=out_channels),
-            nn.LeakyReLU(),
-            nn.Conv2d(in_channels=out_channels, out_channels=out_channels, kernel_size=3, stride=1, padding="same"),
-            nn.BatchNorm2d(num_features=out_channels),
-            nn.LeakyReLU(),
-            nn.MaxPool2d(kernel_size=2)
-        )
-
-
-    def forward(self,x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.conv5(x)
-
-        x = x.view(x.shape[0], -1) # flatten 4d to 2d
-
-        x = self.fc1(x)
-        x = self.fc2(x)
-        x = self.fc3(x)
-
-        return x
-	
 class SimpleCNNsb(nn.Module):
     def __init__(self, num_classes=3):
         super().__init__()
@@ -230,10 +128,10 @@ class SimpleCNNsb(nn.Module):
 
 		# Fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(128 * 4 * 4, 512),
+            nn.Linear(128 * 4 * 4, 256),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(512, num_classes)
+            nn.Linear(256, num_classes)
         )
 
 
@@ -246,17 +144,17 @@ class SimpleCNNsb(nn.Module):
        return x
 
 # save model
-def savecheckpoint(model, ver, bestacu, filename):
+def savecheckpoint(model, ver, indi, bestacu, filename):
     checkpoint = {
       "model": model,
       "ver": ver,
+	  "indi": indi,
 	  "accu": bestacu
 	}
     torch.save(checkpoint, filename)
 
 if __name__ == "__main__":
 	
-	type_run = 0 # 0 -> sb; 1 -> real_image  #################
 	reuse_sbdtset = True
 	
 	batch_size = 16
@@ -273,84 +171,49 @@ if __name__ == "__main__":
 	else:
 		device = torch.device("cpu")
 
-	if type_run == 0:
 
-		list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR", "CMO"]
-
-		# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-		if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")) and reuse_sbdtset:
-			trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"), weights_only=False)
-		else:
-			# tạo trainsetsb	
-			trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2)
-			# save trainsetsb to file by torch
-			torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
+	list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR", "CMO"]
 	
-		# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-		if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) and reuse_sbdtset:
-			testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
-		else:
-			# tạo testsetsb	
-			testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
-			# save testsetsb to file by torch
-			torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
-		
-		class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
-
-		weights = []
-		for label in trainsetsb.targets:
-			weights.append(class_weights[label])
-
-		# ** Use WeightedRandomSampler
-		sampler = WeightedRandomSampler(
-    	weights=weights,
-    	num_samples=len(weights),
-    	replacement=True
-		)
-
-		# with sampler,  shuffle must be False
-		train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
-		test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
-
-		# checl old model file exist
-		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
-			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=False)
-			model = checkpoint["model"]
-			bestaccu = checkpoint["accu"]
-		else:
-			model = SimpleCNNsb().to(device)
-			bestaccu = 0
-
+	# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
+	if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")) and reuse_sbdtset:
+		trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"), weights_only=False)
 	else:
-		
-		trainset = RefDataset(root=os.path.join(_dir, "_no_use"))
-		testset = RefDataset(root=os.path.join(_dir, "_no_use"), train=False)
+		# tạo trainsetsb	
+		trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2)
+		# save trainsetsb to file by torch
+		torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
 
-		class_weights = trainset.calculate_class_distribution(printOut=False).to(device)
-		
-		weights = []
-		for label in trainset.targets:
-			weights.append(class_weights[label])
-		
-		# ** Use WeightedRandomSampler
-		sampler = WeightedRandomSampler(
-    	weights=weights,
-    	num_samples=len(weights),
-    	replacement=True
-		)
+	# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
+	if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) and reuse_sbdtset:
+		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
+	else:
+		# tạo testsetsb	
+		testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
+		# save testsetsb to file by torch
+		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
+	
+	class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
+	weights = []
+	for label in trainsetsb.targets:
+		weights.append(class_weights[label])
+	# ** Use WeightedRandomSampler
+	sampler = WeightedRandomSampler(
+    weights=weights,
+    num_samples=len(weights),
+    replacement=True
+	)
+	# with sampler,  shuffle must be False
+	train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
+	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+	# checl old model file exist
+	if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.chk")):
+		checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.chk"), weights_only=False)
+		model = checkpoint["model"]
+		bestaccu = checkpoint["accu"]
+	else:
+		model = SimpleCNNsb().to(device)
+		bestaccu = 0
 
-		# with sampler,  shuffle must be False
-		train_dataloader = DataLoader(trainset, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
-		test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
-
-		# checl old model file exist
-		if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.pt")):
-			checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.pt"), weights_only=False)
-			model = checkpoint["model"]
-			bestaccu = checkpoint["accu"]
-		else:
-			model = SimpleCNN().to(device)
-			bestaccu = 0
 		
 	# ** Use weighted loss
 	# Without weights: Model might achieve 90% accuracy by just predicting majority class
@@ -398,7 +261,7 @@ if __name__ == "__main__":
 		
 		if accu > bestaccu:
 			bestaccu = accu
-			savecheckpoint(model, model.ver, bestaccu, os.path.join(_dir, "_no_use/bestcheckpoint.pt"))
+			savecheckpoint(model, model.ver, list2, bestaccu, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
 			with open(os.path.join(_dir, "_no_use/bestcheckpoint.txt"), "w") as f:
 				f.write(str(bestaccu))
 		
