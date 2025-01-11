@@ -223,11 +223,11 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	trainsetsb.ADDMORETRAINDT("BNB/USDT", "4h")
-	torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb_more.pth"))
+	# trainsetsb.ADDMORETRAINDT("BNB/USDT", "4h")
+	# torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb_more.pth"))
 
-	trainsetsb.calculate_class_distribution(printOut=True)
-	exit()
+	# trainsetsb.calculate_class_distribution(printOut=True)
+	# exit()
 
 	class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
 	weights = []
