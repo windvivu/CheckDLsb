@@ -226,18 +226,8 @@ if __name__ == "__main__":
 	# trainsetsb.ADDMORETRAINDT("ETH/USDT", "4h")
 	# torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb_more2.pth"))
 
-	class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
-	weights = []
-	for label in trainsetsb.targets:
-		weights.append(class_weights[label])
-	# ** Use WeightedRandomSampler
-	sampler = WeightedRandomSampler(
-    weights=weights,
-    num_samples=len(weights),
-    replacement=True
-	)
-	# with sampler,  shuffle must be False
-	train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
+	
+	train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, shuffle=True, num_workers=0, drop_last=False)
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 	# checl old model file exist
 	if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.chk")):
@@ -249,10 +239,7 @@ if __name__ == "__main__":
 		bestaccu = 0
 
 		
-	# ** Use weighted loss
-	# Without weights: Model might achieve 90% accuracy by just predicting majority class
-	# With weights: Model forced to learn minority classes better
-	criterion = nn.CrossEntropyLoss(weight=class_weights)
+	criterion = nn.CrossEntropyLoss()
 
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
 
