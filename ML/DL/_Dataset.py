@@ -188,7 +188,7 @@ if __name__ == "__main__":
 	
 	reuse_sbdtset = True
 	
-	batch_size = 16
+	batch_size = 32
 	num_epochs = 100000
 	
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -226,9 +226,6 @@ if __name__ == "__main__":
 	# trainsetsb.ADDMORETRAINDT("ETH/USDT", "4h")
 	# torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb_more2.pth"))
 
-	# trainsetsb.calculate_class_distribution(printOut=True)
-	# exit()
-
 	class_weights = trainsetsb.calculate_class_distribution(printOut=False).to(device)
 	weights = []
 	for label in trainsetsb.targets:
@@ -262,6 +259,9 @@ if __name__ == "__main__":
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
 	bestaccu = 0
+
+	print('Begin training on:')
+	trainsetsb.calculate_class_distribution(printOut=True)
 
 	for epoch in range(num_epochs):
 		print("Epoch: ", str(epoch+1), "/", str(num_epochs))
