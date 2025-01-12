@@ -83,6 +83,7 @@ if __name__ == "__main__":
 
 	print('Begin training on:')
 	trainsetsb.calculate_class_distribution(printOut=True)
+	print('Class turning: ', trainsetsb.turned)
 
 	for epoch in range(num_epochs):
 		print("Epoch: ", str(epoch+1), "/", str(num_epochs))

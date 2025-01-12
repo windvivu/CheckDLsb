@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import functions.en_decode as ed
 
-p = ed.mydecodeb64('YlZKcWFuTndZa1ZRVWZodHVZdGdkMnRqVlRaNGJtOXZRbkpsYTFoeVpUWlNRMDVDZGpSdGNtY3dRM0k0UlhaNmJGQlBhVkZMYmtJPQ==', 'fhtuYtgd')
+p = ed.mydecodeb64('YlZKcWFuTndZa1ZRVWZodHVZdGdkMnRqVlRMDVDZGpSdGNtY3dRM0k0UlhaNmJGQlBhVkZMYmtJPQ==', 'RaNGJtOXZRbkpsYTFoeVpUWlN')
 # r = redis.Redis(host='vnn.ink', port=6379, db=0, password=p)
 r = redis.Redis(host='127.0.0.1', port=6379, db=0, password=p)
 

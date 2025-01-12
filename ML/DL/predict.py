@@ -36,9 +36,7 @@ if __name__ == "__main__":
 		print("No testset file found")
 		exit()
 
-		
-	testsetsb.TURN2UP()
-	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+	
 	# checl old model file exist
 	if os.path.exists(os.path.join(_dir, pathCheckpoint)):
 		checkpoint = torch.load(os.path.join(_dir, pathCheckpoint), 
@@ -49,6 +47,13 @@ if __name__ == "__main__":
 	else:
 		print("No model file found")
 		exit()
+	
+	if model.info['dtsturned'] == 'up':
+		testsetsb.TURN2UP()
+	elif model.info['dtsturned'] == 'down':
+		testsetsb.TURN2DOWN()
+		
+	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 	print("Begin prediction with model accu", model.ver, bestaccu)
 	model.eval()
