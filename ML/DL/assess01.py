@@ -52,8 +52,8 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	trainsetsb.TURN2DOWN()
-	testsetsb.TURN2DOWN()
+	trainsetsb.TURN2UP()
+	testsetsb.TURN2UP()
 
 	if trainsetsb.turned != testsetsb.turned:
 		raise ValueError("Trainset and testset must be turned the same way")
