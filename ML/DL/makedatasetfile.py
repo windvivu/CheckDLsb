@@ -4,7 +4,7 @@ import torch
 
 reuse_sbdtset = False
 
-list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR", "CMO"]
+list2 = ["MFI", "RSI", "close"]
 
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
