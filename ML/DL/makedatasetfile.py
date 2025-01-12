@@ -4,7 +4,8 @@ import torch
 
 reuse_sbdtset = False
 
-list2 = ["MFI", "RSI", "close"]
+list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE", "close",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR"] # thay CMO thành close, do thấy CMO chẳng khác gì RSI
+# list2 = ["MFI", "RSI", "close"]
 
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
@@ -27,6 +28,8 @@ else:
 	testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="NEO/USDT", timeframe="4h", listIndi=list2, train=False)
 	# save testsetsb to file by torch
 	torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
+
+# exit()
 
 print('Add more data to trainset 1')
 trainsetsb.ADDMORETRAINDT("BNB/USDT", "4h")

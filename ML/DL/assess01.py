@@ -32,8 +32,8 @@ if __name__ == "__main__":
 		device = torch.device("cpu")
 
 
-	# list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR", "CMO"]
-	list2 = ["MFI", "RSI", "close"]
+	list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE", "close",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR"] # thay CMO thành close, do thấy CMO chẳng khác gì RSI
+	# list2 = ["MFI", "RSI", "close"]
 	
 	# kiểm tra xem "trainsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
 	if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")) and reuse_sbdtset:
@@ -77,12 +77,14 @@ if __name__ == "__main__":
 		checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.chk"), weights_only=False)
 		model = checkpoint["model"]
 		bestaccu = checkpoint["accu"]
+		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
 			model = SimpleCNNsb().to(device)
 		else:
 			model = SimpleCNNsb(num_classes=2).to(device)
 		bestaccu = 0
+		_epoch = 0
 
 		
 	# ** Use weighted loss
@@ -139,6 +141,7 @@ if __name__ == "__main__":
 				'ver': model.ver, 
 				'indi': list2, 
 				'bestacu': bestaccu,
+				'epoch': _epoch + epoch,
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
 			}

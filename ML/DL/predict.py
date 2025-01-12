@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint006.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint008.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
@@ -48,10 +48,14 @@ if __name__ == "__main__":
 		print("No model file found")
 		exit()
 	
-	if checkpoint['info']['dtsturned'] == 'up':
+	try:
+		if checkpoint['info']['dtsturned'] == 'up':
+			testsetsb.TURN2UP()
+		elif checkpoint['info']['dtsturned'] == 'down':
+			testsetsb.TURN2DOWN()
+	except: # ngoại lệ cho checkpoint cũ không có thông tin về turned
+		pass
 		testsetsb.TURN2UP()
-	elif checkpoint['info']['dtsturned'] == 'down':
-		testsetsb.TURN2DOWN()
 
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
@@ -77,11 +81,11 @@ if __name__ == "__main__":
 	print("Classification report:")
 	print(classification_report(all_labels, all_predictions))
 
-	exit()
+	# exit()
 
-	print('---------------------Test 1 saple----------------------------------------------------------------------')
+	# print('---------------------Test 1 saple----------------------------------------------------------------------')
 
 	# test 1 sample
-	index_sample = 12
-	a, b = testsetsb[index_sample]
-	testsetsb.showplotly(index_sample)
+	# index_sample = 12
+	# a, b = testsetsb[index_sample]
+	# testsetsb.showplotly(index_sample)
