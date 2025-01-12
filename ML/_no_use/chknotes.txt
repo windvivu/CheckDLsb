@@ -2,6 +2,12 @@ bestcheckpoint001.chk được train trừ dữ liệu addmor NEO, BNB, ETH, kho
 bestcheckpoint002.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, có sampler weight. Accu là 0.385
 bestcheckpoint003.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, có sampler weight. Accu là 0.391
 bestcheckpoint004.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, turn 2 class: up and none, có sampler weight. Accu là 0.55
+bestcheckpoint005.chk được train trừ dữ liệu addmor NEO, BNB, ETH, khoảng 30.000 samples, turn 2 class: down and none, có sampler weight. Accu là 0.515
+bestcheckpoint006.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.569.
+    Tốt: precision lớp âp tính tăng cao đáng kể, Tuy nhiên recall của lớp dương tính lại thua xa các model train từ (NEO, BNB, ETH). Cho thấy cần thêm data để
+    tăng độ nhận diện các mẫu dương tính.
+
+Đang thử train với chỉ 3 indicator ["MFI", "RSI", "close"] xem thế nào
 
 model train:
 

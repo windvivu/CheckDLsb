@@ -19,11 +19,15 @@ class SbDataset(Dataset):
 		self.foreCast = foreCast
 		self.thresoldDiff = thresoldDiff
 
+		self.spl = None
+
 		self.Y = None
 		self.Y_temp = None
 		self.turned = ''	
 
 		X, Y = self._proccessdt(symbol, timeframe)
+
+		self.initialLenTrainset = len(X[:-testsize])
 				
 		if train:
 			self.X = X[:-testsize]
@@ -126,7 +130,11 @@ class SbDataset(Dataset):
 		self._turn2class('')
 	
 	def showplotly(self, index):
-		self.spl.plotlySampleX(index)
+		if self.train:
+			raise ValueError("Cannot show plot for trainset because this set was suffled")
+		else:
+			index = self.initialLenTrainset + index
+			self.spl.plotlySampleX(index)
 
 	def calculate_class_distribution(self, printOut=True):
 		labels = self.Y
