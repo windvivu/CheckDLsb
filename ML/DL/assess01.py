@@ -87,11 +87,11 @@ if __name__ == "__main__":
 		bestaccu = 0
 		_epoch = 0
 
-	v = 'sb1k55' # make sure same version of model: sb0, sb1k55
+	v = 'sb1k55' # make sure same version of model loaded from file: sb0, sb1k55
 	if checkpoint is not None:
 		if checkpoint['info']['ver'] != v:
 			print("Wrong version of model")
-			exit
+			exit()
 
 		
 	# ** Use weighted loss
