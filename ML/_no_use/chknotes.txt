@@ -8,8 +8,12 @@ bestcheckpoint006.chk được train trừ dữ liệu NEO khoảng 10.000 sampl
     tăng độ nhận diện các mẫu dương tính.
 
 Đang thử train với chỉ 3 indicator ["MFI", "RSI", "close"] xem thế nào
-    bestcheckpoint007.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 1400 Accu là 0.567. Chỉ có 3 indi ['MFI', 'RSI', 'close']
+    bestcheckpoint007.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.592. Chỉ có 3 indi ['MFI', 'RSI', 'close']
     bestcheckpoint008.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.491. Chỉ có 3 indi ['MFI', 'RSI', 'close']
+
+bestcheckpoint009.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.529. Epoch hiện tại 1000, đang tiếp tục training thêm
+    indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
+
 
 ----- tóm tắt -----
 
@@ -35,25 +39,25 @@ weighted avg       0.58      0.58      0.58      1000
 
 -----------------------
 
-bestcheckpoint007.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 1400 Accu là 0.567. Chỉ có 3 indi ['MFI', 'RSI', 'close']
-{'ver': 'sb0', 'indi': ['MFI', 'RSI', 'close'], 'bestacu': 0.567, 'classes': {'None': 0, 'Up': 1}, 'dtsturned': 'up'}
- Testing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:00<00:00, 170.96it/s]
-Accuracy: 0.549
+bestcheckpoint007.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.567. Chỉ có 3 indi ['MFI', 'RSI', 'close']
+{'ver': 'sb0', 'indi': ['MFI', 'RSI', 'close'], 'bestacu': 0.592, 'classes': {'None': 0, 'Up': 1}, 'dtsturned': 'up'}
+ Testing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:00<00:00, 170.28it/s]
+Accuracy: 0.617
 Confusion matrix:
-[[446 265]
- [186 103]]
+[[535 176]
+ [207  82]]
 Classification report:
               precision    recall  f1-score   support
 
-           0       0.71      0.63      0.66       711
-           1       0.28      0.36      0.31       289
+           0       0.72      0.75      0.74       711
+           1       0.32      0.28      0.30       289
 
-    accuracy                           0.55      1000
-   macro avg       0.49      0.49      0.49      1000
-weighted avg       0.58      0.55      0.56      1000
+    accuracy                           0.62      1000
+   macro avg       0.52      0.52      0.52      1000
+weighted avg       0.60      0.62      0.61      1000
 
-(+) recall tăng hơn chút
-(-) recall giảm hơn chút
+(+) recall tăng hơn chút nhưng vẫn ít
+(-) recall tăng hơn chút
 
 -------------------
 
@@ -100,7 +104,26 @@ weighted avg       0.61      0.48      0.50      1000
 (+) recall tốt nhất từ trước đến giờ
 (-) recall giảm nhất từ trước đến giờ -> nếu bảo do nhiều tín hiệu nhiễu gây nhầm lẫn, thì ở đây chỉ có 3 indi thôi mà? -> cần tìm cách giảm số nhầm này
 
+..............................
+bestcheckpoint009.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.541. Epoch hiện tại 2343
+{'ver': 'sb0', 'indi': ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR'], 'bestacu': 0.541, 'epoch': 2343, 'classes': {'None': 0, 'Up': 1}, 'dtsturned': 'up'}
+ Testing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:00<00:00, 134.67it/s]
+Accuracy: 0.541
+Confusion matrix:
+[[338 373]
+ [ 86 203]]
+Classification report:
+              precision    recall  f1-score   support
 
+           0       0.80      0.48      0.60       711
+           1       0.35      0.70      0.47       289
+
+    accuracy                           0.54      1000
+   macro avg       0.57      0.59      0.53      1000
+weighted avg       0.67      0.54      0.56      1000
+
+(+) recall tốt tốt nhất từ trước đến giờ
+(-) recall giảm nhất từ trước đến giờ -> tăng thêm chút  -> cần tìm cách giảm số nhầm này (ngày mai tiếp tục)
 
 ========================================================================================================================================
 model train:
