@@ -7,7 +7,7 @@ _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.append(_dir)
 
 from ML.DL._Dataset import SbDataset
-from ML.DL._SimpleCNNsb import SimpleCNNsb, SimpleCNNsbkernel5x5, savecheckpoint
+from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb, SimpleCNNsbkernel5x5, SimpleCNNsbkernel7x7
 
 # Traning với model SimpleCNNsb.py
 # Tính năng tuỳ chọn: có lấy lại file dataset đã lưu hay không (reuse_sbdtset = True), trong trường hợp muốn tạo lại dataset
@@ -81,13 +81,13 @@ if __name__ == "__main__":
 		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
-			model = SimpleCNNsbkernel5x5().to(device)
+			model = SimpleCNNsbkernel7x7().to(device)
 		else:
-			model = SimpleCNNsbkernel5x5(num_classes=2).to(device)
+			model = SimpleCNNsbkernel7x7(num_classes=2).to(device)
 		bestaccu = 0
 		_epoch = 0
 
-	v = 'sb1k55' # make sure same version of model loaded from file: sb0, sb1k55
+	v = 'sb1k77' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77
 	if checkpoint is not None:
 		if checkpoint['info']['ver'] != v:
 			print("Wrong version of model")
