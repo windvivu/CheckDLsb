@@ -7,7 +7,7 @@ _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.append(_dir)
 
 from ML.DL._Dataset import SbDataset
-from ML.DL._SimpleCNNsb import SimpleCNNsb, savecheckpoint
+from ML.DL._SimpleCNNsb import SimpleCNNsb, SimpleCNNsbkernel5x5, savecheckpoint
 
 # Traning với model SimpleCNNsb.py
 # Tính năng tuỳ chọn: có lấy lại file dataset đã lưu hay không (reuse_sbdtset = True), trong trường hợp muốn tạo lại dataset
@@ -53,8 +53,8 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	# trainsetsb.TURN2DOWN()
-	# testsetsb.TURN2DOWN()
+	trainsetsb.TURN2UP()
+	testsetsb.TURN2UP()
 
 	if trainsetsb.turned != testsetsb.turned:
 		raise ValueError("Trainset and testset must be turned the same way")
@@ -73,6 +73,7 @@ if __name__ == "__main__":
 	train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 	# checl old model file exist
+	checkpoint = None
 	if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint.chk")):
 		checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint.chk"), weights_only=False)
 		model = checkpoint["model"]
@@ -80,11 +81,17 @@ if __name__ == "__main__":
 		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
-			model = SimpleCNNsb().to(device)
+			model = SimpleCNNsbkernel5x5().to(device)
 		else:
-			model = SimpleCNNsb(num_classes=2).to(device)
+			model = SimpleCNNsbkernel5x5(num_classes=2).to(device)
 		bestaccu = 0
 		_epoch = 0
+
+	v = 'sb1k55' # make sure same version of model: sb0, sb1k55
+	if checkpoint is not None:
+		if checkpoint['info']['ver'] != v:
+			print("Wrong version of model")
+			exit
 
 		
 	# ** Use weighted loss

@@ -11,7 +11,9 @@ bestcheckpoint006.chk được train trừ dữ liệu NEO khoảng 10.000 sampl
     bestcheckpoint007.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.592. Chỉ có 3 indi ['MFI', 'RSI', 'close']
     bestcheckpoint008.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.491. Chỉ có 3 indi ['MFI', 'RSI', 'close']
 
-bestcheckpoint009.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.529. Epoch hiện tại 1000, đang tiếp tục training thêm
+bestcheckpoint009.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.541. Epoch 2343
+    indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
+bestcheckpoint010.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: down and none, có sampler weight. 'bestacu': 0.553. Epoch 2119
     indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
 
 
