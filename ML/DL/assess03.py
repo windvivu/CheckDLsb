@@ -120,7 +120,7 @@ if __name__ == "__main__":
 	# criterion = FocalLoss(alpha=class_weights, gamma=2.0)
 
 
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
