@@ -9,16 +9,19 @@ import pandas as pd
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
 
-from ML.DL._Dataset import SbDataset
-from ML.DL._SimpleCNNsb import SimpleCNNsb
+# from ML.DL._Dataset import SbDataset
+# from ML.DL._SimpleCNNsb import SimpleCNNsb
 
 if __name__ == "__main__":
 	os.environ['OMP_NUM_THREADS'] = '1'
-	os.environ['OPENBLAS_NUM_THREADS'] = '1'	
+	os.environ['OPENBLAS_NUM_THREADS'] = '1'
+	
+	# torch.set_num_threads(4)	
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint102.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
+	pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
@@ -48,6 +51,17 @@ if __name__ == "__main__":
 	else:
 		print("No model file found")
 		exit()
+
+	# checl old model file exist
+	if os.path.exists(os.path.join(_dir, pathCheckpoint2)):
+		checkpoint2 = torch.load(os.path.join(_dir, pathCheckpoint2), 
+						  map_location=device,
+						  weights_only=False)
+		model2 = checkpoint2["model"]
+		bestaccu2 = checkpoint2["accu"]
+	else:
+		print("No model2 file found")
+		exit()
 	
 	try:
 		if checkpoint['info']['dtsturned'] == 'up':
@@ -60,29 +74,29 @@ if __name__ == "__main__":
 
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-	print("Begin prediction with model accu", model.ver, bestaccu)
-	print(checkpoint['info'])
-	model.eval()
-	all_predictions = []
-	all_labels = []
-	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
-		images = images.to(device)
-		labels_test = labels_test.to(device)
+	# print("Begin prediction with model accu", model.ver, bestaccu)
+	# print(checkpoint['info'])
+	# model.eval()
+	# all_predictions = []
+	# all_labels = []
+	# for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
+	# 	images = images.to(device)
+	# 	labels_test = labels_test.to(device)
 		
-		all_labels.extend(labels_test)
-		with torch.no_grad():
-			outputs_test = model(images)
-			max_to_label = torch.argmax(outputs_test, dim=1)
-			all_predictions.extend(max_to_label)
+	# 	all_labels.extend(labels_test)
+	# 	with torch.no_grad():
+	# 		outputs_test = model(images)
+	# 	max_to_label = torch.argmax(outputs_test, dim=1)
+	# 	all_predictions.extend(max_to_label)
 	
-	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
-	print('Accuracy:', accu)
-	print("Confusion matrix:")
-	print(confusion_matrix(all_labels, all_predictions))
-	print("Classification report:")
-	print(classification_report(all_labels, all_predictions))
+	# accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
+	# print('Accuracy:', accu)
+	# print("Confusion matrix:")
+	# print(confusion_matrix(all_labels, all_predictions))
+	# print("Classification report:")
+	# print(classification_report(all_labels, all_predictions))
 
-	exit()
+	# exit()
 
 	print('---------------------Test every saple----------------------------------------------------------------------')
 
@@ -93,40 +107,40 @@ if __name__ == "__main__":
 	tbl = {
 		'Label': [],
 		'Predict': [],
-		'Confidence': [],
-		'antiConfidence': []
 	}
 	for i in tqdm(range(len(testsetsb))):
-		pred, lb = testsetsb[i]
+		sample, lb = testsetsb[i]
 
 		tbl['Label'].append(lb)
 
-		pred = pred.unsqueeze(0).to(device)
+		sample = sample.unsqueeze(0).to(device)
 		model.eval()
 		with torch.no_grad():
-			outputs_test = model(pred)
+			outputs_test = model(sample)
+
+		# Đây là một cách tính thresold nhưng không dùng, chỉ lưu ở đây
+		# outputs_test = torch.sigmoid(outputs_test)
+		# outputs_test = (outputs_test > 0.5765).float()
+
+		max_to_label = torch.argmax(outputs_test, dim=1)
+		pred = max_to_label.item()
+
+		if pred > 0:
+			model2.eval()
+			with torch.no_grad():
+				outputs_test = model2(sample)
 			max_to_label = torch.argmax(outputs_test, dim=1)
 			pred = max_to_label.item()
-		
-		# cal confidence
-		softmax = torch.nn.Softmax(dim=1)
-		_confidence = softmax(outputs_test)
-		confidence = _confidence[0][max_to_label].item()
-		anti_confidence = _confidence[0][1 - max_to_label].item()
 
-		# filter prediction
-		# if pred == 1 and confidence < 0.65: pred = 0
+		
 
 		tbl['Predict'].append(pred)
-		tbl['Confidence'].append(confidence)
-		tbl['antiConfidence'].append(anti_confidence)
-
-		# print('Confidence:', confidence)
-		# print('Prediction:', max_to_label.item())
+		
 		# print('-----------------------------------------------------------------------------------------------------------')
 	
-	tbl = pd.DataFrame(tbl)
-	tbl.to_excel('predict_result_' + checkpoint['info']['dtsturned'] + '.xlsx', index=False)
+	# tbl = pd.DataFrame(tbl)
+	# tbl.to_excel('predict_result_' + checkpoint['info']['dtsturned'] + '.xlsx', index=False)
 	print(confusion_matrix(tbl['Label'], tbl['Predict']))
+	print(classification_report(tbl['Label'], tbl['Predict']))
 
 
