@@ -16,8 +16,11 @@ bestcheckpoint009.chk được train trừ dữ liệu NEO khoảng 30.000 sampl
 bestcheckpoint010.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: down and none, có sampler weight. 'bestacu': 0.553. Epoch 2119
     indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
 
+bestcheckpoint011.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.634. Epoch 589
+    indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
+    Kernel size liên tiếp 7x7 và 5x5
+    Thấy accu tăng, giảm nhầm âm tính thành dương tính. Nhưng đồng thời recall dương tính cũng giảm theo
 
-Nhận thấy nếu tăng kernel size liên tiếp 7x7 và 5x5 thì accuracy tăng nhưng là do tăng recall của lớp âm tính và lại giảm recall của lớp dương tính
 
 
 ----- tóm tắt -----
@@ -129,6 +132,26 @@ weighted avg       0.67      0.54      0.56      1000
 
 (+) recall tốt tốt nhất từ trước đến giờ
 (-) recall giảm nhất từ trước đến giờ -> tăng thêm chút  -> cần tìm cách giảm số nhầm này (ngày mai tiếp tục)
+
+------------
+bestcheckpoint011.chk được train trừ dữ liệu NEO khoảng 30.000 samples từ addmore (NEO, BNB, ETH), turn 2 class: up and none, có sampler weight. 'bestacu': 0.634. Epoch 589
+{'ver': 'sb1k75', 'indi': ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR'], 'bestacu': 0.634, 'epoch': 589, 'classes': {'None': 0, 'Up': 1}, 'dtsturned': 'up'}
+ Testing: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 32/32 [00:00<00:00, 145.45it/s]
+Accuracy: 0.634
+Confusion matrix:
+[[486 225]
+ [141 148]]
+Classification report:
+              precision    recall  f1-score   support
+
+           0       0.78      0.68      0.73       711
+           1       0.40      0.51      0.45       289
+
+    accuracy                           0.63      1000
+   macro avg       0.59      0.60      0.59      1000
+weighted avg       0.67      0.63      0.65      1000
+
+Nhận thấy nếu tăng kernel size liên tiếp 7x7 và 5x5 thì accuracy tăng nhưng là do tăng recall của lớp âm tính và lại giảm recall của lớp dương tính
 
 ========================================================================================================================================
 model train:
