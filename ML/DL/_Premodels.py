@@ -9,7 +9,7 @@ class Resnet18sb(nn.Module):
         self.ver = 'res18sb'
         
         # Load pretrained ResNet18
-        self.model = models.resnet18(pretrained=False)
+        self.model = models.resnet18(weights=None)
         
         # Modify first conv layer for grayscale input (1 channel)
         self.model.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
@@ -28,13 +28,33 @@ class EfficientNetV2sb(nn.Module):
         self.ver = 'effv2sb'
         
         # Load EfficientNetV2_S (smallest variant)
-        self.model = models.efficientnet_v2_s(pretrained=False)
+        self.model = models.efficientnet_v2_s(weights=None)
         
         # Modify first conv layer for grayscale input (1 channel)
         # Keep small kernel for 16x16 input
         self.model.features[0][0] = nn.Conv2d(1, 24, kernel_size=3, stride=1, padding=1, bias=False)
         
         # Modify classifier for your classes
+        num_ftrs = self.model.classifier[1].in_features
+        self.model.classifier[1] = nn.Linear(num_ftrs, num_classes)
+
+    def forward(self, x):
+        return self.model(x)
+    
+class EfficientNetB0sb(nn.Module):
+    def __init__(self, num_classes=3):
+        super().__init__()
+        
+        self.ver = 'effb0sb'
+        
+        # Load EfficientNet-B0
+        self.model = models.efficientnet_b0(weights=None)
+        
+        # Modify first conv layer for grayscale
+        self.model.features[0][0] = nn.Conv2d(1, 32, kernel_size=3, 
+                                             stride=1, padding=1, bias=False)
+        
+        # Modify classifier
         num_ftrs = self.model.classifier[1].in_features
         self.model.classifier[1] = nn.Linear(num_ftrs, num_classes)
 
