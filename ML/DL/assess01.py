@@ -175,4 +175,6 @@ if __name__ == "__main__":
 			}
 			savecheckpoint(model, info, os.path.join(_dir, "_no_use/bestcheckpoint.chk"))
 			with open(os.path.join(_dir, "_no_use/bestcheckpoint.txt"), "w") as f:
-				f.write(str(bestaccu))
+				f.write(model.ver + '\n')
+				f.write( trainsetsb.turned + '\n')
+				f.write(str(bestaccu) + '\n')
