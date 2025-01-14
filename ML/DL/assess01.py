@@ -2,6 +2,7 @@ import os
 import sys
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
@@ -12,6 +13,24 @@ from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb, SimpleCNNsbkernel5x5
 # Traning với model SimpleCNNsb.py
 # Tính năng tuỳ chọn: có lấy lại file dataset đã lưu hay không (reuse_sbdtset = True), trong trường hợp muốn tạo lại dataset
 # Training với weighted loss và weight sampler để giảm thiểu hiện tượng mất cân bằng dữ liệu
+
+class FocalLoss(nn.Module):
+    def __init__(self, alpha=None, gamma=2.0, reduction='mean'):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.reduction = reduction
+        
+    def forward(self, inputs, targets):
+        ce_loss = F.cross_entropy(inputs, targets, reduction='none', weight=self.alpha)
+        pt = torch.exp(-ce_loss)
+        focal_loss = ((1 - pt) ** self.gamma * ce_loss)
+        
+        if self.reduction == 'mean':
+            return focal_loss.mean()
+        elif self.reduction == 'sum':
+            return focal_loss.sum()
+        return focal_loss
 
 if __name__ == "__main__":
 	
@@ -97,7 +116,9 @@ if __name__ == "__main__":
 	# ** Use weighted loss
 	# Without weights: Model might achieve 90% accuracy by just predicting majority class
 	# With weights: Model forced to learn minority classes better
-	criterion = nn.CrossEntropyLoss(weight=class_weights)
+	
+	# criterion = nn.CrossEntropyLoss(weight=class_weights)
+	criterion = FocalLoss(alpha=class_weights, gamma=2.0)
 
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
