@@ -7,7 +7,7 @@ _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.append(_dir)
 
 from ML.DL._Dataset import SbDataset
-from ML.DL._Premodels import savecheckpoint, Resnet18sb
+from ML.DL._Premodels import savecheckpoint, Resnet18sb, EfficientNetV2sb
 
 # Traning với model SimpleCNNsb.py
 # Tính năng tuỳ chọn: có lấy lại file dataset đã lưu hay không (reuse_sbdtset = True), trong trường hợp muốn tạo lại dataset
@@ -81,13 +81,13 @@ if __name__ == "__main__":
 		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
-			model = Resnet18sb().to(device)
+			model = EfficientNetV2sb().to(device)
 		else:
-			model = Resnet18sb(num_classes=2).to(device)
+			model = EfficientNetV2sb(num_classes=2).to(device)
 		bestaccu = 0
 		_epoch = 0
 
-	v = 'res18sb' # make sure same version of model loaded from file: res18sb
+	v = 'effv2sb' # make sure same version of model loaded from file: res18sb, effv2sb
 	if checkpoint is not None:
 		if checkpoint['info']['ver'] != v:
 			print("Wrong version of model")
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 	# With weights: Model forced to learn minority classes better
 	criterion = nn.CrossEntropyLoss(weight=class_weights)
 
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
 	total_batch = len(train_dataloader)
 	total_batch_test = len(test_dataloader)
