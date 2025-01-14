@@ -17,6 +17,9 @@ bestcheckpoint010.chk được train trừ dữ liệu NEO khoảng 30.000 sampl
     indi là bộ indi mới ['MA10', 'DEMA', 'EMA26', 'KAMA', 'MIDPRICE', 'close', 'ADX', 'ADXR', 'DX', 'MFI', 'MINUS_DI', 'PLUS_DI', 'RSI', 'ULTOSC', 'WILLR', 'NATR']
 
 
+Nhận thấy nếu tăng kernel size liên tiếp 7x7 và 5x5 thì accuracy tăng nhưng là do tăng recall của lớp âm tính và lại giảm recall của lớp dương tính
+
+
 ----- tóm tắt -----
 
 bestcheckpoint006.chk được train trừ dữ liệu NEO khoảng 10.000 samples, turn 2 class: up and none, có sampler weight. Epoch 2400 Accu là 0.569.
