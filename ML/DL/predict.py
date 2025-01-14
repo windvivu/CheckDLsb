@@ -58,31 +58,31 @@ if __name__ == "__main__":
 		# testsetsb.TURN2UP()
 		raise ValueError("Old checkpoint file must have turned information")
 
-	# test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
+	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-	# print("Begin prediction with model accu", model.ver, bestaccu)
-	# print(checkpoint['info'])
-	# model.eval()
-	# all_predictions = []
-	# all_labels = []
-	# for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
-	# 	images = images.to(device)
-	# 	labels_test = labels_test.to(device)
+	print("Begin prediction with model accu", model.ver, bestaccu)
+	print(checkpoint['info'])
+	model.eval()
+	all_predictions = []
+	all_labels = []
+	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
+		images = images.to(device)
+		labels_test = labels_test.to(device)
 		
-	# 	all_labels.extend(labels_test)
-	# 	with torch.no_grad():
-	# 		outputs_test = model(images)
-	# 		max_to_label = torch.argmax(outputs_test, dim=1)
-	# 		all_predictions.extend(max_to_label)
+		all_labels.extend(labels_test)
+		with torch.no_grad():
+			outputs_test = model(images)
+			max_to_label = torch.argmax(outputs_test, dim=1)
+			all_predictions.extend(max_to_label)
 	
-	# accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
-	# print('Accuracy:', accu)
-	# print("Confusion matrix:")
-	# print(confusion_matrix(all_labels, all_predictions))
-	# print("Classification report:")
-	# print(classification_report(all_labels, all_predictions))
+	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
+	print('Accuracy:', accu)
+	print("Confusion matrix:")
+	print(confusion_matrix(all_labels, all_predictions))
+	print("Classification report:")
+	print(classification_report(all_labels, all_predictions))
 
-	# exit()
+	exit()
 
 	print('---------------------Test every saple----------------------------------------------------------------------')
 
@@ -102,6 +102,7 @@ if __name__ == "__main__":
 		tbl['Label'].append(lb)
 
 		pred = pred.unsqueeze(0).to(device)
+		model.eval()
 		with torch.no_grad():
 			outputs_test = model(pred)
 			max_to_label = torch.argmax(outputs_test, dim=1)
