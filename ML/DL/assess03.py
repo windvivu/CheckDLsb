@@ -116,8 +116,8 @@ if __name__ == "__main__":
 	# ** Use weighted loss
 	# Without weights: Model might achieve 90% accuracy by just predicting majority class
 	# With weights: Model forced to learn minority classes better
-	# criterion = nn.CrossEntropyLoss(weight=class_weights)
-	criterion = FocalLoss(alpha=class_weights, gamma=2.0)
+	criterion = nn.CrossEntropyLoss(weight=class_weights)
+	# criterion = FocalLoss(alpha=class_weights, gamma=2.0)
 
 
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)

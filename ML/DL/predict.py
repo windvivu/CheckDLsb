@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	batch_size = 32
 
 	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
-	pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
+	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	_dir2 = os.path.dirname(_dir)
@@ -52,16 +52,16 @@ if __name__ == "__main__":
 		print("No model file found")
 		exit()
 
-	# checl old model file exist
-	if os.path.exists(os.path.join(_dir, pathCheckpoint2)):
-		checkpoint2 = torch.load(os.path.join(_dir, pathCheckpoint2), 
-						  map_location=device,
-						  weights_only=False)
-		model2 = checkpoint2["model"]
-		bestaccu2 = checkpoint2["accu"]
-	else:
-		print("No model2 file found")
-		exit()
+	# checl old model2 file exist
+	# if os.path.exists(os.path.join(_dir, pathCheckpoint2)):
+	# 	checkpoint2 = torch.load(os.path.join(_dir, pathCheckpoint2), 
+	# 					  map_location=device,
+	# 					  weights_only=False)
+	# 	model2 = checkpoint2["model"]
+	# 	bestaccu2 = checkpoint2["accu"]
+	# else:
+	# 	print("No model2 file found")
+	# 	exit()
 	
 	try:
 		if checkpoint['info']['dtsturned'] == 'up':
@@ -74,29 +74,29 @@ if __name__ == "__main__":
 
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-	# print("Begin prediction with model accu", model.ver, bestaccu)
-	# print(checkpoint['info'])
-	# model.eval()
-	# all_predictions = []
-	# all_labels = []
-	# for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
-	# 	images = images.to(device)
-	# 	labels_test = labels_test.to(device)
+	print("Begin prediction with model accu", model.ver, bestaccu)
+	print(checkpoint['info'])
+	model.eval()
+	all_predictions = []
+	all_labels = []
+	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
+		images = images.to(device)
+		labels_test = labels_test.to(device)
 		
-	# 	all_labels.extend(labels_test)
-	# 	with torch.no_grad():
-	# 		outputs_test = model(images)
-	# 	max_to_label = torch.argmax(outputs_test, dim=1)
-	# 	all_predictions.extend(max_to_label)
+		all_labels.extend(labels_test)
+		with torch.no_grad():
+			outputs_test = model(images)
+		max_to_label = torch.argmax(outputs_test, dim=1)
+		all_predictions.extend(max_to_label)
 	
-	# accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
-	# print('Accuracy:', accu)
-	# print("Confusion matrix:")
-	# print(confusion_matrix(all_labels, all_predictions))
-	# print("Classification report:")
-	# print(classification_report(all_labels, all_predictions))
+	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
+	print('Accuracy:', accu)
+	print("Confusion matrix:")
+	print(confusion_matrix(all_labels, all_predictions))
+	print("Classification report:")
+	print(classification_report(all_labels, all_predictions))
 
-	# exit()
+	exit()
 
 	print('---------------------Test every saple----------------------------------------------------------------------')
 
