@@ -9,7 +9,7 @@ class Resnet18sb(nn.Module):
         self.ver = 'res18sb'
         
         # Load pretrained ResNet18
-        self.model = models.resnet18(weights = False)
+        self.model = models.resnet18(pretrained=False)
         
         # Modify first conv layer for grayscale input (1 channel)
         self.model.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)
@@ -28,7 +28,7 @@ class EfficientNetV2sb(nn.Module):
         self.ver = 'effv2sb'
         
         # Load EfficientNetV2_S (smallest variant)
-        self.model = models.efficientnet_v2_s(weights = False)
+        self.model = models.efficientnet_v2_s(pretrained=False)
         
         # Modify first conv layer for grayscale input (1 channel)
         # Keep small kernel for 16x16 input
