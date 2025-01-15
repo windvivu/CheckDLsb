@@ -79,7 +79,7 @@ class SbDataset(Dataset):
 			# save self.Y to self.Y_temp
 			self.Y_temp = self.Y
 			# if item in self.Y > 1, set to 1, else set to 0 
-			self.Y = torch.where(self.Y > 1, 1, 0)
+			self.Y = torch.where(self.Y == 2, 1, 0)
 			self.turned = 'up'
 		elif type == 'down':
 			if self.turned != '':
