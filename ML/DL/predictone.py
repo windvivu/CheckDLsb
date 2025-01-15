@@ -90,7 +90,10 @@ for i in tqdm(range(nums)):
 	sample, lb = testsetsb[i]
 	tbl['Label'].append(lb)
 	
+	# _sample = sample.clone()
 	sample = sample.unsqueeze(0).to(device)
+	# _sample = _sample.unsqueeze(0).to(device)
+	# _sample[:, :, 15, :] = 0  # -> 3.1
 
 	# predict with model
 	pred = doPredict(model, sample)

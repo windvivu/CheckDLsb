@@ -72,8 +72,8 @@ if __name__ == "__main__":
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
 	
-	trainsetsb.TURN2DOWN()
-	testsetsb.TURN2DOWN()
+	trainsetsb.TURN2NONE()
+	testsetsb.TURN2NONE()
 
 	if trainsetsb.turned != testsetsb.turned:
 		raise ValueError("Trainset and testset must be turned the same way")
@@ -100,13 +100,13 @@ if __name__ == "__main__":
 		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
-			model = SimpleCNNsbkernel75().to(device)
+			model = SimpleCNNsb().to(device)
 		else:
-			model = SimpleCNNsbkernel75(num_classes=2).to(device)
+			model = SimpleCNNsb(num_classes=2).to(device)
 		bestaccu = 0
 		_epoch = 0
 
-	v = 'sb1k75' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
+	v = 'sb0' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
 	if checkpoint is not None:
 		if checkpoint['info']['ver'] != v:
 			print("Wrong version of model")
@@ -178,3 +178,4 @@ if __name__ == "__main__":
 				f.write(model.ver + '\n')
 				f.write( trainsetsb.turned + '\n')
 				f.write(str(bestaccu) + '\n')
+				f.write(str(_epoch + epoch))

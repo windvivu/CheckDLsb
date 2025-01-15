@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint010.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
 	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 	except Exception as e: # ngoại lệ cho checkpoint cũ không có thông tin về turned
 		# testsetsb.TURN2UP()
 		raise ValueError("Old checkpoint file must have turned information")
-
+	
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 	print("Begin prediction with model accu", model.ver, bestaccu)
@@ -80,6 +80,13 @@ if __name__ == "__main__":
 	all_predictions = []
 	all_labels = []
 	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
+		# images[:, :, 2, :] = 0     #-> 0
+		# images[:, :, 4, :] = 0	# -> 1
+		# images[:, :, 5, :] = 0	# -> 2
+		# images[:, :, 10, :] = 0	# -> 2.1
+		# images[:, :, 14, :] = 1  # -> 3
+		# images[:, :, 15, :] = 0  # -> 3.1
+
 		images = images.to(device)
 		labels_test = labels_test.to(device)
 		

@@ -178,3 +178,4 @@ if __name__ == "__main__":
 				f.write(model.ver + '\n')
 				f.write( trainsetsb.turned + '\n')
 				f.write(str(bestaccu) + '\n')
+				f.write(str(_epoch + epoch))

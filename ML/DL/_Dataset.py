@@ -65,7 +65,7 @@ class SbDataset(Dataset):
 	
 	def _turn2class(self, type:str):
 		'''
-		type: up or down or ''
+		type: up or down or none or ''
 		'''
 		if self.Y is None:
 			raise ValueError("You must create train dataset first!")
@@ -90,15 +90,21 @@ class SbDataset(Dataset):
 			# if item in self.Y = 1, set to 1, else set to 0 
 			self.Y = torch.where(self.Y == 1, 1, 0)
 			self.turned = 'down'
+		elif type == 'none':
+			if self.turned != '':
+				raise ValueError("You must turn back to '' before turn to 'none'")
+			
+			# save self.Y to self.Y_temp
+			self.Y_temp = self.Y
+			# if item in self.Y = 0, set to 1, else set to 0
+			self.Y = torch.where(self.Y == 0, 1, 0)
+			self.turned = 'none'
 		elif type == '':
-			if self.turned == 'up':
-				self.Y = self.Y_temp
-				self.turned = ''
-			elif self.turned == 'down':
+			if self.turned in ('up', 'down', 'none'):
 				self.Y = self.Y_temp
 				self.turned = ''
 		else:
-			raise ValueError("type must be 'up' or 'down' or ''")
+			raise ValueError("type must be 'up' or 'down' or none or ''")
 
 	
 	def __getitem__(self, index):
@@ -125,6 +131,9 @@ class SbDataset(Dataset):
 	
 	def TURN2DOWN(self):
 		self._turn2class('down')
+	
+	def TURN2NONE(self):
+		self._turn2class('none')
 	
 	def TURN3CLASS(self):
 		self._turn2class('')
