@@ -15,7 +15,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
-pathCheckpoint_v = "_no_use/bestcheckpoint011.chk"  #####
+pathCheckpoint_v = "_no_use/bestcheckpoint012.chk"  #####
 
 
 # check device
@@ -98,9 +98,9 @@ for i in tqdm(range(nums)):
 	# predict with model
 	pred = doPredict(model, sample)
 
-	if pred == 1:
-		# verify with model_v
-		pred = doPredict(model_v, sample)
+	# if pred == 1:
+	# 	# verify with model_v
+	# 	pred = doPredict(model_v, sample)
 		# if pred == 0:
 		# 	pred = 1
 		# else:

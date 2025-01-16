@@ -100,13 +100,13 @@ if __name__ == "__main__":
 		_epoch = checkpoint["info"]["epoch"]
 	else:
 		if trainsetsb.turned == '':
-			model = SimpleCNNsb().to(device)
+			model = SimpleCNNsbkernel75().to(device)
 		else:
-			model = SimpleCNNsb(num_classes=2).to(device)
+			model = SimpleCNNsbkernel75(num_classes=2).to(device)
 		bestaccu = 0
 		_epoch = 0
 
-	v = 'sb0' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
+	v = 'sb1k75' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
 	if checkpoint is not None:
 		if checkpoint['info']['ver'] != v:
 			print("Wrong version of model")

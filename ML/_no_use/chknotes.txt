@@ -12,7 +12,7 @@ bestcheckpoint011.chk được train từ dữ liệu NEO khoảng 30.000 sample
     Kernel size liên tiếp 7x7 và 5x5
     Thấy accu tăng, giảm nhầm âm tính thành dương tính. Nhưng đồng thời recall dương tính cũng giảm theo
 
-    Đang train sb75 cho data turn down.... mới ở epoch 490.......
+bestcheckpoint012.chk train sb75 cho data turn down.... mới ở epoch 1260
 
 bestcheckpoint103.chk training từ dữ liệu đầy đủ, turn up, model EfficientNetB0sb
 
