@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	
 	reuse_sbdtset = True
 	test_phase = False
-	turndtset = 'down'
+	turndtset = 'none'
 	if test_phase:
 		sysboltest = "NEO/USDT"
 		tftest = "4h"
