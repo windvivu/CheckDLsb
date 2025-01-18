@@ -15,7 +15,8 @@ os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
 pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
-pathCheckpoint_v = "_no_use/bestcheckpoint012.chk"  #####
+pathCheckpoint_v = "_no_use/bestcheckpoint010.chk"  #####
+pathCheckpoint_v_none = "_no_use/bestcheckpoint000.chk"  #####
 
 
 # check device
@@ -50,6 +51,13 @@ if os.path.exists(os.path.join(_dir, pathCheckpoint_v)):
 else:
 	print("No model_v file found")
 	exit()
+
+# check old model none file exist
+if os.path.exists(os.path.join(_dir, pathCheckpoint_v_none)):
+	checkpoint_v_none = torch.load(os.path.join(_dir, pathCheckpoint_v_none), 
+					  map_location=device,
+					  weights_only=False)
+	model_v_none = checkpoint_v_none["model"]
 
 print("Model for predict: ", model.ver)
 print("Model for verify: ", model_v.ver)
@@ -95,16 +103,35 @@ for i in tqdm(range(nums)):
 	# _sample = _sample.unsqueeze(0).to(device)
 	# _sample[:, :, 15, :] = 0  # -> 3.1
 
+	score = 0
+
 	# predict with model
 	pred = doPredict(model, sample)
+	if pred == 1: # tức là up  (nhưng gồm up, down, none), precision chỉ 30% 
+		score += 1
+	else: # tức down và none, precision 70%
+		pass
+		# score -= 0.70
 
-	# if pred == 1:
-	# 	# verify with model_v
-	# 	pred = doPredict(model_v, sample)
-		# if pred == 0:
-		# 	pred = 1
-		# else:
-		# 	pred = 0
+	pred_v = doPredict(model_v, sample)
+	if pred_v == 0: # tức là up or none (precision cao)
+		score += 0.1
+	else: # tức là down
+		pass # không tác động vì precision thấp
+		# score -= 0.1
+	
+	pred_v_none = doPredict(model_v_none, sample)
+	if pred_v_none == 0: # tức up and down
+		pass
+		score += 0.1
+	else:
+		# pass
+		score -= 0.1 # tức là none
+	
+	if score >= 1.1:
+		pred = 1
+	else:
+		pred = 0
 		
 	tbl['Predict'].append(pred)
 	

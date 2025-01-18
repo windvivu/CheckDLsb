@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint012.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
 	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -68,6 +68,8 @@ if __name__ == "__main__":
 			testsetsb.TURN2UP()
 		elif checkpoint['info']['dtsturned'] == 'down':
 			testsetsb.TURN2DOWN()
+		elif checkpoint['info']['dtsturned'] == 'none':
+			testsetsb.TURN2NONE()
 	except Exception as e: # ngoại lệ cho checkpoint cũ không có thông tin về turned
 		# testsetsb.TURN2UP()
 		raise ValueError("Old checkpoint file must have turned information")
