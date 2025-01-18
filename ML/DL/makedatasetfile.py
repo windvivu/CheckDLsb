@@ -30,17 +30,22 @@ else:
 	trainsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol=symbol, timeframe=tf, listIndi=list2, testsize=testsize)
 	# save trainsetsb to file by torch
 	torch.save(trainsetsb, os.path.join(_dir, "_no_use/trainsetsb.pth"))
-	print("Done with NEO/USDT")
+	print('Done with', symbol, tf)
 
 # kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
 if make_testset:
+	print("Making initial testset...")
 	if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) and reuse_sbdtset:
+		print("Reuse testset file...")
 		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 	else:
-		# tạo testsetsb	
-		testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol="QTUM/USDT", timeframe="4h", listIndi=list2, train=False)
+		# tạo testsetsb
+		symbol_testset = "QTUM/USDT"
+		tf_testset = "4h"	
+		testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol=symbol_testset, timeframe=tf_testset, listIndi=list2, train=False)
 		# save testsetsb to file by torch
 		torch.save(testsetsb, os.path.join(_dir, "_no_use/testsetsb.pth"))
+		print('Done testset with', symbol_testset, tf_testset)
 
 	# exit()
 

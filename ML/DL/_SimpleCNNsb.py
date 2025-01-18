@@ -206,7 +206,7 @@ class SimpleCNNsbkernel75(nn.Module):
 def savecheckpoint(model, info:dict, filename):
     checkpoint = {
       "model": model,
-      "accu": info["bestacu"],
+      "loss": info["bestloss"],
       "info": info
 	}
     torch.save(checkpoint, filename)
