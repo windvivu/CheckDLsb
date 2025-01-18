@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	
 	reuse_sbdtset = True
 	test_phase = False
-	turndtset = 'up'
+	turndtset = 'down'
 	if test_phase:
 		sysboltest = "NEO/USDT"
 		tftest = "4h"
@@ -119,7 +119,8 @@ if __name__ == "__main__":
 			model = SimpleCNNsb().to(device)
 		else:
 			model = SimpleCNNsb(num_classes=2).to(device)
-		bestaccu = 0
+		# bestaccu = 0
+		bestloss = 100
 		_epoch = 0
 
 	v = 'sb0' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
@@ -138,9 +139,6 @@ if __name__ == "__main__":
 
 	optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-4)
 
-	total_batch = len(train_dataloader)
-	# bestaccu = 0
-	bestloss = 100
 
 	print('Begin training', end='')
 	if test_phase:
