@@ -110,7 +110,7 @@ if __name__ == "__main__":
 	# checl old model file exist
 	checkpoint = None
 	if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint" + turndtset + ".chk")):
-		checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint" + turndtset + ".chk"), weights_only=False)
+		checkpoint = torch.load(os.path.join(_dir, "_no_use/bestcheckpoint" + turndtset + ".chk"), weights_only=False, map_location=device)
 		model = checkpoint["model"]
 		bestloss = checkpoint["loss"]
 		_epoch = checkpoint["info"]["epoch"]
