@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
 	total_batch = len(train_dataloader)
 	# bestaccu = 0
-	bestloss = 0
+	bestloss = 100
 
 	print('Begin training', end='')
 	if test_phase:
@@ -186,7 +186,7 @@ if __name__ == "__main__":
 			print('Accuracy:', accu)
 			print(' End epoch', epoch+1, end=' - ')
 		
-		if lossItem > bestloss:
+		if lossItem < bestloss:
 			bestloss = lossItem
 			info = {
 				'ver': model.ver, 
