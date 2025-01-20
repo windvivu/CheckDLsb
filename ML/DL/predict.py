@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint010.chk"  #####
 	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 						  map_location=device,
 						  weights_only=False)
 		model = checkpoint["model"]
-		bestaccu = checkpoint["accu"]
+		# bestloss = checkpoint["loss"]
 	else:
 		print("No model file found")
 		exit()
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 	
 	test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-	print("Begin prediction with model accu", model.ver, bestaccu)
+	print("Begin prediction with model accu", model.ver)
 	print(checkpoint['info'])
 	model.eval()
 	all_predictions = []

@@ -14,9 +14,9 @@ sys.path.append(_dir2)
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 
-pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
-pathCheckpoint_v = "_no_use/bestcheckpoint010.chk"  #####
-pathCheckpoint_v_none = "_no_use/bestcheckpoint000.chk"  #####
+pathCheckpoint_up = "_no_use/bestcheckpoint009.chk"  #####
+pathCheckpoint_down = "_no_use/bestcheckpoint010.chk"  #####
+pathCheckpoint_none = "_no_use/bestcheckpoint000.chk"  #####
 
 
 # check device
@@ -33,47 +33,52 @@ else:
 	exit()
 
 # checl old model file exist
-if os.path.exists(os.path.join(_dir, pathCheckpoint)):
-	checkpoint = torch.load(os.path.join(_dir, pathCheckpoint), 
+if os.path.exists(os.path.join(_dir, pathCheckpoint_up)):
+	checkpoint_up = torch.load(os.path.join(_dir, pathCheckpoint_up), 
 					  map_location=device,
 					  weights_only=False)
-	model = checkpoint["model"]
+	model_up = checkpoint_up["model"]
 else:
-	print("No model file found")
+	print("No model_up file found")
 	exit()
 
 # check old model v file exist
-if os.path.exists(os.path.join(_dir, pathCheckpoint_v)):
-	checkpoint_v = torch.load(os.path.join(_dir, pathCheckpoint_v), 
+if os.path.exists(os.path.join(_dir, pathCheckpoint_down)):
+	checkpoint_down = torch.load(os.path.join(_dir, pathCheckpoint_down), 
 					  map_location=device,
 					  weights_only=False)
-	model_v = checkpoint_v["model"]
+	model_down = checkpoint_down["model"]
 else:
-	print("No model_v file found")
+	print("No model_down file found")
 	exit()
 
 # check old model none file exist
-if os.path.exists(os.path.join(_dir, pathCheckpoint_v_none)):
-	checkpoint_v_none = torch.load(os.path.join(_dir, pathCheckpoint_v_none), 
+if os.path.exists(os.path.join(_dir, pathCheckpoint_none)):
+	checkpoint_none = torch.load(os.path.join(_dir, pathCheckpoint_none), 
 					  map_location=device,
 					  weights_only=False)
-	model_v_none = checkpoint_v_none["model"]
+	model_none = checkpoint_none["model"]
+else:
+	print("No model_none file found")
+	exit()
 
-print("Model for predict: ", model.ver)
-print("Model for verify: ", model_v.ver)
+print("Model for predict: ", model_up.ver)
+print("Model for verify: ", model_down.ver)
+print("Model for verify 2: ", model_none.ver)
 
-print("Model turned: (", checkpoint['info']['dtsturned'], ")")
-print("Model_v turned: (", checkpoint_v['info']['dtsturned'], ")")
+print("Model turned: (", checkpoint_up['info']['dtsturned'], ")")
+print("Model_v turned: (", checkpoint_down['info']['dtsturned'], ")")
+print("Model_v_none turned: (", checkpoint_none['info']['dtsturned'], ")")
 
-try:
-	if checkpoint['info']['dtsturned'] == 'up':
-		testsetsb.TURN2UP()
-	elif checkpoint['info']['dtsturned'] == 'down':
-		testsetsb.TURN2DOWN()
-except Exception as e: # ngoại lệ cho checkpoint cũ không có thông tin về turned
-	# testsetsb.TURN2UP()
-	raise ValueError("Old checkpoint file must have turned information")
-
+# try:
+# 	if checkpoint_up['info']['dtsturned'] == 'up':
+# 		testsetsb.TURN2UP()
+# 	elif checkpoint_down['info']['dtsturned'] == 'down':
+# 		testsetsb.TURN2DOWN()
+# except Exception as e: # ngoại lệ cho checkpoint cũ không có thông tin về turned
+# 	# testsetsb.TURN2UP()
+# 	raise ValueError("Old checkpoint file must have turned information")
+# testsetsb.TURN2UP()
 
 nums = len(testsetsb)
 print('Number of sample: ', nums)
@@ -94,33 +99,60 @@ def doPredict(model, sample):
 	
 	return pred
 
-for i in tqdm(range(nums)):
-	sample, lb = testsetsb[i]
-	tbl['Label'].append(lb)
-	
-	# _sample = sample.clone()
-	sample = sample.unsqueeze(0).to(device)
-	# _sample = _sample.unsqueeze(0).to(device)
-	# _sample[:, :, 15, :] = 0  # -> 3.1
-
+def doPredictUp(model_up, sample, threshold=1.1):
 	score = 0
-
-	# predict with model
-	pred = doPredict(model, sample)
-	if pred == 1: # tức là up  (nhưng gồm up, down, none), precision chỉ 30% 
+	score_d = 0
+	pred = doPredict(model_up, sample)
+	if pred == 1: # tức là up  (nhưng gồm up, down, none), precision chỉ 30%
 		score += 1
 	else: # tức down và none, precision 70%
 		pass
-		# score -= 0.70
+		score_d += 1
 
-	pred_v = doPredict(model_v, sample)
+	pred_v = doPredict(model_down, sample)
 	if pred_v == 0: # tức là up or none (precision cao)
 		score += 0.1
+		score_d -= 0.1
 	else: # tức là down
 		pass # không tác động vì precision thấp
 		# score -= 0.1
 	
-	pred_v_none = doPredict(model_v_none, sample)
+	pred_v_none = doPredict(model_none, sample)
+	if pred_v_none == 0: # tức up and down
+		pass
+		score += 0.1
+		score_d += 0.1
+	else:
+		# pass
+		score -= 0.1 # tức là none
+		score_d -= 0.1
+	
+	if score >= threshold:
+		pred = 2
+	else:
+		pred = 0
+	
+	# print('pred ', pred, 'score ', score, 'score_d', score_d )
+
+	# if pred ==0 and score_d >= 0.2:
+	# 	pred = 1
+	return pred
+
+def doPredictDown(model_down, sample, threshold=1.1):
+	score = 0
+	pred = doPredict(model_down, sample)
+	if pred == 1: # tức là down  (nhưng gồm up, down, none), precision chỉ 30%
+		score += 1
+	else: # tức up và none, precision 70%
+		pass
+	pred_v = doPredict(model_up, sample)
+	if pred_v == 0: # tức là down or none (precision cao)
+		score += 0.1
+	else: # tức là up
+		pass # không tác động vì precision thấp
+		# score -= 0.1
+	
+	pred_v_none = doPredict(model_none, sample)
 	if pred_v_none == 0: # tức up and down
 		pass
 		score += 0.1
@@ -128,17 +160,27 @@ for i in tqdm(range(nums)):
 		# pass
 		score -= 0.1 # tức là none
 	
-	if score >= 1.1:
+	if score >= threshold:
 		pred = 1
 	else:
 		pred = 0
+
+	return pred
+
+for i in range(nums):
+	sample, lb = testsetsb[i]
+	tbl['Label'].append(lb)
+	
+	sample = sample.unsqueeze(0).to(device)
+
+	predict = doPredictUp(model_up, sample)
+	# if predict == 1: predict = 2
+
 		
-	tbl['Predict'].append(pred)
+	tbl['Predict'].append(predict)
 	
 
 # tbl = pd.DataFrame(tbl)
 # tbl.to_excel('predict_result_' + checkpoint['info']['dtsturned'] + '.xlsx', index=False)
 print(confusion_matrix(tbl['Label'], tbl['Predict']))
-print(classification_report(tbl['Label'], tbl['Predict']))
-
-
+print(classification_report(tbl['Label'], tbl['Predict'], zero_division=0))

@@ -3,7 +3,7 @@ import sys
 import torch
 
 reuse_sbdtset = False
-make_testset = False
+make_testset = True
 
 list2 = ["MA10", "DEMA", "EMA26", "KAMA", "MIDPRICE", "close",   "ADX", "ADXR", "DX", "MFI", "MINUS_DI", "PLUS_DI", "RSI", "ULTOSC","WILLR",   "NATR"] # thay CMO thành close, do thấy CMO chẳng khác gì RSI
 # list2 = ["MFI", "RSI", "close"]
@@ -40,7 +40,7 @@ if make_testset:
 		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 	else:
 		# tạo testsetsb
-		symbol_testset = "QTUM/USDT"
+		symbol_testset = "NEO/USDT"
 		tf_testset = "4h"	
 		testsetsb = SbDataset(root=_dir2, datafolder="data/BNfuture", symbol=symbol_testset, timeframe=tf_testset, listIndi=list2, train=False)
 		# save testsetsb to file by torch
