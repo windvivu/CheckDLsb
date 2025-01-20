@@ -143,6 +143,8 @@ criterion = nn.CrossEntropyLoss(weight=class_weights)
 # criterion = FocalLoss(alpha=class_weights, gamma=2.0)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
 
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3)
+
 early_stopping = EarlyStopping()
 
 print('Begin training', end='')
@@ -186,6 +188,9 @@ for epoch in range(num_epochs):
 			all_predictions.extend(max_to_label)
 		accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
 		testlossItem = testloss.item()
+		
+		scheduler(testlossItem)
+		
 		print('Test accuracy:', accu)
 		print('Loss value of testing:', testlossItem)
 		print(' End epoch', epoch+1, end=' - ')
