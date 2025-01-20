@@ -197,7 +197,7 @@ for epoch in range(num_epochs):
 		accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
 		testlossItem = testloss.item()
 		
-		scheduler(testlossItem)
+		scheduler.step(testlossItem)
 
 		print('Test accuracy:', accu)
 		print('Loss value of testing:', testlossItem)
