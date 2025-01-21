@@ -3,6 +3,7 @@ import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from sklearn.metrics import precision_recall_fscore_support
 
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
@@ -16,7 +17,7 @@ from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb, SimpleCNNsbkernel5x5
 
 
 class EarlyStopping:
-    def __init__(self, patience=5, min_delta=0.001):
+    def __init__(self, patience=10, min_delta=0.0001):
         """
         Args:
             patience (int): Số epoch chờ đợi trước khi dừng training
@@ -49,12 +50,15 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 		f.write('ver: ' + info["ver"] + '\n')
 		f.write('turn: ' + info["dtsturned"] + '\n')
 		f.write('accu: ' + str(info["accu"]) + '\n')
+		f.write('f1: ' + str(info["f1"]) + '\n')
 		f.write('loss: ' + str(info["loss"]) + '\n')
 		f.write('epoch: ' + str(_epoch + epoch))
 	
 reuse_sbdtset = True
-saveby = 'accu' # loss, f1
-turndtset = ''
+saveby = 'loss' # accu, loss, f1
+useEarlyStop = False
+useScheduler = False
+turndtset = 'down'
 sysboltest = "NEO/USDT"
 tftest = "4h"
 
@@ -126,6 +130,7 @@ if os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset
 	model = checkpoint["model"]
 	bestaccu = checkpoint["info"]["accu"]
 	bestloss = checkpoint["info"]["loss"]
+	bestf1 = checkpoint["info"]["f1"]
 	_epoch = checkpoint["info"]["epoch"]
 else:
 	if trainsetsb.turned == '':
@@ -134,6 +139,7 @@ else:
 		model = SimpleCNNsb(num_classes=2).to(device)
 	bestaccu = 0
 	bestloss = 100
+	bestf1 = 0
 	_epoch = 0
 v = 'sb0' # make sure same version of model loaded from file: sb0, sb1k55, sb1k77, sb1k75
 if checkpoint is not None:
@@ -169,6 +175,7 @@ for epoch in range(num_epochs):
 	print("Epoch: ", str(epoch+1), "/", str(num_epochs))
 	model.train()
 	progress_bar = tqdm(train_dataloader, desc=" Training", colour="green")
+	running_loss = 0.0
 	for iter, (images, labels_train) in enumerate(progress_bar):
 		images = images.to(device)
 		labels_train = labels_train.to(device)
@@ -179,13 +186,17 @@ for epoch in range(num_epochs):
 		optimizer.zero_grad() # gradient -> làm sach buffer gradient
 		trainloss.backward() # backward
 		optimizer.step() # update weight
+
+		running_loss += trainloss.item()
 	
-	trainlossItem = trainloss.item()
-	print(' End epoch', epoch+1,'loss value of training:', trainlossItem)
+	avg_loss = running_loss / len(progress_bar)
+	print(' End epoch', epoch+1,'loss value of training:', avg_loss)
 	
 	model.eval()
 	all_predictions = []
 	all_labels = []
+	running_test_loss = 0.0  # Initialize test loss
+
 	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
 		images = images.to(device)
 		labels_test = labels_test.to(device)
@@ -195,15 +206,35 @@ for epoch in range(num_epochs):
 			outputs_test = model(images) # forward
 		max_to_label = torch.argmax(outputs_test, dim=1)
 		testloss = criterion(outputs_test, labels_test) # loss
+		running_test_loss += testloss.item()  # Accumulate test loss
 		all_predictions.extend(max_to_label)
-	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)
-	testlossItem = testloss.item()
+	
+	# Calculate average test loss
+	avg_test_loss = running_test_loss / len(test_dataloader)
 
-	scheduler.step(testlossItem)
+	# Convert lists to tensors once
+	pred_tensor = torch.tensor(all_predictions).to(device)
+	label_tensor = torch.tensor(all_labels).to(device)
+	
+	# Calculate accuracy
+	correct = (pred_tensor == label_tensor).sum().item()
+	total = len(all_labels)
+	accu = correct / total
+
+	# Calculate metrics
+	pred_cpu = pred_tensor.cpu().numpy()
+	label_cpu = label_tensor.cpu().numpy()
+	precision, recall, f1, _ = precision_recall_fscore_support(label_cpu, pred_cpu, average='binary')
+
+	if useScheduler: scheduler.step(avg_test_loss) # Use average test loss
 	current_lr = optimizer.param_groups[0]['lr']
 	print(f'Current learning rate: {current_lr}')
-	print('Test accuracy:', accu)
-	print('Loss value of testing:', testlossItem)
+	print(f'Test metrics:')
+	print(f'- Accuracy: {accu:.4f}')
+	print(f'- Precision: {precision:.4f}')
+	print(f'- Recall: {recall:.4f}') 
+	print(f'- F1-score: {f1:.4f}')
+	print(f'- Loss value of testing: {avg_test_loss}')
 	print('== End epoch', epoch+1, end=' - ')
 	
 	if saveby == 'accu':
@@ -213,20 +244,36 @@ for epoch in range(num_epochs):
 				'ver': model.ver, 
 				'indi': list2, 
 				'accu': bestaccu,
-				'loss': testlossItem,
+				'f1': f1,
+				'loss': avg_test_loss,
 				'epoch': _epoch + epoch,
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
 			}
 			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
 	elif saveby == 'loss':
-		if testlossItem < bestloss:
-			bestloss = testlossItem
+		if avg_test_loss < bestloss:
+			bestloss = avg_test_loss
 			info = {
 				'ver': model.ver, 
 				'indi': list2, 
 				'accu': accu,
+				'f1': f1,
 				'loss': bestloss,
+				'epoch': _epoch + epoch,
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
+			}
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+	elif saveby == 'f1':
+		if f1 > bestf1:
+			bestf1 = f1
+			info = {
+				'ver': model.ver, 
+				'indi': list2, 
+				'accu': accu,
+				'f1': bestf1,
+				'loss': avg_test_loss,
 				'epoch': _epoch + epoch,
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
@@ -234,6 +281,6 @@ for epoch in range(num_epochs):
 			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
 			
 	
-	if early_stopping(testlossItem):
+	if useEarlyStop and early_stopping(avg_test_loss):
 		print("Early stopping !!!!!!!!!!!!!")
 		break
