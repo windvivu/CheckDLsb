@@ -224,7 +224,10 @@ for epoch in range(num_epochs):
 	# Calculate metrics
 	pred_cpu = pred_tensor.cpu().numpy()
 	label_cpu = label_tensor.cpu().numpy()
-	precision, recall, f1, _ = precision_recall_fscore_support(label_cpu, pred_cpu, average='binary')
+	if trainsetsb.turned == '':
+		precision, recall, f1, _ = precision_recall_fscore_support(label_cpu, pred_cpu, average='weighted')
+	else:
+		precision, recall, f1, _ = precision_recall_fscore_support(label_cpu, pred_cpu, average='binary')
 
 	if useScheduler: scheduler.step(avg_test_loss) # Use average test loss
 	current_lr = optimizer.param_groups[0]['lr']
