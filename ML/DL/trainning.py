@@ -125,12 +125,12 @@ test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, nu
 
 # checl old model file exist
 checkpoint = None
-if os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk")):
-	checkpoint = torch.load(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk"), weights_only=False, map_location=device)
+if os.path.exists(os.path.join(_dir, "_no_use/bestcheckpoint010.chk")): # os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk"
+	checkpoint = torch.load(os.path.join(_dir, f"_no_use/bestcheckpoint010.chk"), weights_only=False, map_location=device)
 	model = checkpoint["model"]
-	bestaccu = checkpoint["info"]["accu"]
-	bestloss = checkpoint["info"]["loss"]
-	bestf1 = checkpoint["info"]["f1"]
+	bestaccu = 0#checkpoint["info"]["accu"]
+	bestloss = 0#checkpoint["info"]["loss"]
+	bestf1 = 0#checkpoint["info"]["f1"]
 	_epoch = checkpoint["info"]["epoch"]
 else:
 	if trainsetsb.turned == '':
@@ -188,6 +188,7 @@ for epoch in range(num_epochs):
 		optimizer.step() # update weight
 
 		running_loss += trainloss.item()
+		break
 	
 	avg_loss = running_loss / len(progress_bar)
 	print(' End epoch', epoch+1,'loss value of training:', avg_loss)

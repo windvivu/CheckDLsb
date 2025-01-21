@@ -82,13 +82,6 @@ if __name__ == "__main__":
 	all_predictions = []
 	all_labels = []
 	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
-		# images[:, :, 2, :] = 0     #-> 0
-		# images[:, :, 4, :] = 0	# -> 1
-		# images[:, :, 5, :] = 0	# -> 2
-		# images[:, :, 10, :] = 0	# -> 2.1
-		# images[:, :, 14, :] = 1  # -> 3
-		# images[:, :, 15, :] = 0  # -> 3.1
-
 		images = images.to(device)
 		labels_test = labels_test.to(device)
 		
