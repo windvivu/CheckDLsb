@@ -90,6 +90,7 @@ for epoch in range(num_epochs):
 	print("Epoch: ", str(epoch+1), "/", str(num_epochs))
 	model.train()
 	progress_bar = tqdm(train_dataloader, desc=" Training", colour="green")
+	running_loss = 0.0
 	for iter, (images, labels_train) in enumerate(progress_bar):
 		images = images.to(device)
 		labels_train = labels_train.to(device)
@@ -100,8 +101,11 @@ for epoch in range(num_epochs):
 		optimizer.zero_grad() # gradient -> làm sach buffer gradient
 		trainloss.backward() # backward
 		optimizer.step() # update weight
+
+		running_loss += trainloss.item()
 	
-	print(' End epoch', epoch+1,'loss value of training:', trainloss.item())
+	avg_loss = running_loss / len(progress_bar)
+	print(' End training', epoch+1,'loss value of training:', avg_loss)
 	
 	model.eval()
 	all_predictions = []
@@ -110,15 +114,26 @@ for epoch in range(num_epochs):
 		images = images.to(device)
 		labels_test = labels_test.to(device)
 		
-		all_labels.extend(labels_test)
 		with torch.no_grad():
 			outputs_test = model(images) # forward
-		max_to_label = torch.argmax(outputs_test, dim=1)
 		testloss = criterion(outputs_test, labels_test) # loss
+		
+		max_to_label = torch.argmax(outputs_test, dim=1)
+		all_labels.extend(labels_test)
 		all_predictions.extend(max_to_label)
 	
+	# Convert lists to tensors once
+	label_tensor = torch.tensor(all_labels).to(device)
+	pred_tensor = torch.tensor(all_predictions).to(device)
+	accu2 = correct / total
+
+	# Calculate accuracy
+	correct = (pred_tensor == label_tensor).sum().item()
+	total = len(all_labels)
+	accu = correct / total
+
 	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)	
-	print(f'- Accuracy: {accu}')
+	print(f'- Accuracy: {accu} - {accu2}')
 	print('== End epoch', epoch+1, end=' - ')
 	
 	

@@ -188,7 +188,6 @@ for epoch in range(num_epochs):
 		optimizer.step() # update weight
 
 		running_loss += trainloss.item()
-		break
 	
 	avg_loss = running_loss / len(progress_bar)
 	print(' End epoch', epoch+1,'loss value of training:', avg_loss)
