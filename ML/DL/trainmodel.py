@@ -125,12 +125,11 @@ for epoch in range(num_epochs):
 	# Convert lists to tensors once
 	label_tensor = torch.tensor(all_labels).to(device)
 	pred_tensor = torch.tensor(all_predictions).to(device)
-	accu2 = correct / total
 
 	# Calculate accuracy
 	correct = (pred_tensor == label_tensor).sum().item()
 	total = len(all_labels)
-	accu = correct / total
+	accu2 = correct / total
 
 	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)	
 	print(f'- Accuracy: {accu} - {accu2}')
