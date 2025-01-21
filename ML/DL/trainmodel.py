@@ -98,8 +98,6 @@ for epoch in range(num_epochs):
 		optimizer.zero_grad() # gradient -> làm sach buffer gradient
 		trainloss.backward() # backward
 		optimizer.step() # update weight
-
-		break
 	
 	print(' End epoch', epoch+1,'loss value of training:', trainloss.item())
 	
