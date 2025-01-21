@@ -27,13 +27,15 @@ else:
 	device = torch.device("cpu")
 
 # kiểm tra xem "trainsetsb.pth" đã tồn tại chưa
+print('Load trainsetsb.pth')
 if os.path.exists(os.path.join(_dir, "_no_use/trainsetsb.pth")):
 	trainsetsb = torch.load(os.path.join(_dir, "_no_use/trainsetsb.pth"), weights_only=False)
 else:
 	print('Err: No trainset file found!')
 	exit()
 
-# kiểm tra xem "testsetsb.pth" đã tồn tại chưa,
+# kiểm tra xem "testsetsb.pth" đã tồn tại chưa
+print('testsetsb.pth')
 if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) :
 	testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 else:
@@ -42,13 +44,13 @@ else:
 
 if turndtset == 'up':
 	trainsetsb.TURN2UP()
-	if testsetsb is not None: testsetsb.TURN2UP()
+	testsetsb.TURN2UP()
 elif turndtset == 'down':
 	trainsetsb.TURN2DOWN()
-	if testsetsb is not None: testsetsb.TURN2DOWN()
+	testsetsb.TURN2DOWN()
 elif turndtset == 'none':
 	trainsetsb.TURN2NONE()
-	if testsetsb is not None: testsetsb.TURN2NONE()
+	testsetsb.TURN2NONE()
 
 if trainsetsb.turned != testsetsb.turned:
 	raise ValueError("Trainset and testset must be turned the same way")
@@ -116,7 +118,7 @@ for epoch in range(num_epochs):
 		all_predictions.extend(max_to_label)
 	
 	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)	
-	print(f'- Accuracy: {accu:.4f}')
+	print(f'- Accuracy: {accu}')
 	print('== End epoch', epoch+1, end=' - ')
 	
 	
