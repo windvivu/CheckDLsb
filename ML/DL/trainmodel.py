@@ -110,6 +110,7 @@ for epoch in range(num_epochs):
 	model.eval()
 	all_predictions = []
 	all_labels = []
+	running_test_loss = 0.0  # Initialize test loss
 	for images, labels_test in tqdm(test_dataloader, desc=" Testing"):
 		images = images.to(device)
 		labels_test = labels_test.to(device)
@@ -117,7 +118,8 @@ for epoch in range(num_epochs):
 		with torch.no_grad():
 			outputs_test = model(images) # forward
 		testloss = criterion(outputs_test, labels_test) # loss
-		
+		running_test_loss += testloss.item()  # Accumulate test loss
+
 		max_to_label = torch.argmax(outputs_test, dim=1)
 		all_labels.extend(labels_test)
 		all_predictions.extend(max_to_label)
@@ -129,10 +131,26 @@ for epoch in range(num_epochs):
 	# Calculate accuracy
 	correct = (pred_tensor == label_tensor).sum().item()
 	total = len(all_labels)
-	accu2 = correct / total
+	accu = correct / total
 
-	accu = (torch.tensor(all_predictions) == torch.tensor(all_labels)).sum().item()/len(all_labels)	
-	print(f'- Accuracy: {accu} - {accu2}')
+	# Calculate metrics
+	label_numpy = label_tensor.cpu().numpy()
+	pred_numpy = pred_tensor.cpu().numpy()
+	if trainsetsb.turned == '':
+		precision, recall, f1, _ = precision_recall_fscore_support(label_numpy, pred_numpy, average='weighted')
+	else:
+		precision, recall, f1, _ = precision_recall_fscore_support(label_numpy, pred_numpy, average='binary')
+
+
+	# Calculate average test loss
+	avg_test_loss = running_test_loss / len(test_dataloader)
+
+	print('Test-------------------------------------')
+	print(f'- Accuracy: {accu}')
+	print(f'- Precision: {precision}')
+	print(f'- Recall: {recall}') 
+	print(f'- F1-score: {f1}')
+	print(f'- Loss value of testing: {avg_test_loss}')
 	print('== End epoch', epoch+1, end=' - ')
 	
 	
