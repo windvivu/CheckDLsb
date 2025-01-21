@@ -124,8 +124,8 @@ checkpoint = None
 if os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk")):
 	checkpoint = torch.load(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk"), weights_only=False, map_location=device)
 	model = checkpoint["model"]
-	bestaccu = checkpoint["accu"]
-	bestloss = checkpoint["loss"]
+	bestaccu = checkpoint["info"]["accu"]
+	bestloss = checkpoint["info"]["loss"]
 	_epoch = checkpoint["info"]["epoch"]
 else:
 	if trainsetsb.turned == '':
