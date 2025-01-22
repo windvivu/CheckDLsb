@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 from sklearn.metrics import confusion_matrix, classification_report
 from tqdm import tqdm
-import pandas as pd
+from sklearn.metrics import precision_recall_fscore_support
 
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint009.chk"  #####
+	pathCheckpoint = "_no_use/bestcheckpoint010.chk"  #####
 	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -98,51 +98,12 @@ if __name__ == "__main__":
 	print("Classification report:")
 	print(classification_report(all_labels, all_predictions))
 
-	exit()
+	print('\n', '--------------------------------', '\n')
 
-	print('---------------------Test every saple----------------------------------------------------------------------')
+	precision, recall, f1, _ = precision_recall_fscore_support(all_labels, all_predictions, average='weighted')
+	print('Precision: ', precision)
+	print('Recall: ', recall)
+	print('F1: ', f1)
 
-	print(len(testsetsb))
-
-	# duyệt qua từng phần tử trong testset và dự đoán
-	# ghi kết quả vào một pandas dataframe
-	tbl = {
-		'Label': [],
-		'Predict': [],
-	}
-	for i in tqdm(range(len(testsetsb))):
-		sample, lb = testsetsb[i]
-
-		tbl['Label'].append(lb)
-
-		sample = sample.unsqueeze(0).to(device)
-		model.eval()
-		with torch.no_grad():
-			outputs_test = model(sample)
-
-		# Đây là một cách tính thresold nhưng không dùng, chỉ lưu ở đây
-		# outputs_test = torch.sigmoid(outputs_test)
-		# outputs_test = (outputs_test > 0.5765).float()
-
-		max_to_label = torch.argmax(outputs_test, dim=1)
-		pred = max_to_label.item()
-
-		if pred > 0:
-			model2.eval()
-			with torch.no_grad():
-				outputs_test = model2(sample)
-			max_to_label = torch.argmax(outputs_test, dim=1)
-			pred = max_to_label.item()
-
-		
-
-		tbl['Predict'].append(pred)
-		
-		# print('-----------------------------------------------------------------------------------------------------------')
 	
-	# tbl = pd.DataFrame(tbl)
-	# tbl.to_excel('predict_result_' + checkpoint['info']['dtsturned'] + '.xlsx', index=False)
-	print(confusion_matrix(tbl['Label'], tbl['Predict']))
-	print(classification_report(tbl['Label'], tbl['Predict']))
-
 

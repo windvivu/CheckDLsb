@@ -9,14 +9,26 @@ _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.append(_dir)
 
 from ML.DL._Dataset import SbDataset
-from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb, SimpleCNNsbkernel5x5, SimpleCNNsbkernel7x7, SimpleCNNsbkernel75
+from ML.DL._SimpleCNNsb2 import savecheckpoint, SimpleCNNsb, LightweightCNN
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
 sys.path.append(_dir2)
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from tqdm import tqdm
 
+def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
+	savecheckpoint(model, info, path_no_ext + ".chk")
+	with open(path_no_ext + ".txt", "w") as f:
+		f.write('ver: ' + info["ver"] + '\n')
+		f.write('turn: ' + info["dtsturned"] + '\n')
+		f.write('accu: ' + str(info["accu"]) + '\n')
+		f.write('f1: ' + str(info["f1"]) + '\n')
+		f.write('loss: ' + str(info["loss"]) + '\n')
+		f.write('epoch: ' + str(_epoch + epoch))
+
 turndtset = 'up'
+retrain = True
+saveby = 'f1' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
 
@@ -35,7 +47,7 @@ else:
 	exit()
 
 # kiểm tra xem "testsetsb.pth" đã tồn tại chưa
-print('testsetsb.pth')
+print('Load testsetsb.pth')
 if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")) :
 	testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
 else:
@@ -70,11 +82,23 @@ replacement=True
 train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, drop_last=False)
 test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
-if trainsetsb.turned == '':
-	model = SimpleCNNsb().to(device)
+# checl old model file exist
+if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk")): 
+	checkpoint = torch.load(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk"), weights_only=False, map_location=device)
+	model = checkpoint["model"]
+	bestaccu = checkpoint["info"]["accu"]
+	bestloss = checkpoint["info"]["loss"]
+	bestf1 = checkpoint["info"]["f1"]
+	_epoch = checkpoint["info"]["epoch"]
 else:
-	model = SimpleCNNsb(num_classes=2).to(device)
-	
+	if trainsetsb.turned == '':
+		model = SimpleCNNsb().to(device)
+	else:
+		model = SimpleCNNsb(num_classes=2).to(device)
+	bestaccu = 0
+	bestloss = 100
+	bestf1 = 0
+	_epoch = 0
 	
 # ** Use weighted loss
 # Without weights: Model might achieve 90% accuracy by just predicting majority class
@@ -152,5 +176,45 @@ for epoch in range(num_epochs):
 	print(f'- F1-score: {f1}')
 	print(f'- Loss value of testing: {avg_test_loss}')
 	print('== End epoch', epoch+1, end=' - ')
+
+	if saveby == 'accu':
+		if accu > bestaccu:
+			bestaccu = accu
+			info = {
+				'ver': model.ver,  
+				'accu': bestaccu,
+				'f1': f1,
+				'loss': avg_test_loss,
+				'epoch': _epoch + epoch,
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
+			}
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+	elif saveby == 'loss':
+		if avg_test_loss < bestloss:
+			bestloss = avg_test_loss
+			info = {
+				'ver': model.ver, 
+				'accu': accu,
+				'f1': f1,
+				'loss': bestloss,
+				'epoch': _epoch + epoch,
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
+			}
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+	elif saveby == 'f1':
+		if f1 > bestf1:
+			bestf1 = f1
+			info = {
+				'ver': model.ver,  
+				'accu': accu,
+				'f1': bestf1,
+				'loss': avg_test_loss,
+				'epoch': _epoch + epoch,
+				'classes': trainsetsb.class_to_idx2,
+				'dtsturned': trainsetsb.turned
+			}
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
 	
 	
