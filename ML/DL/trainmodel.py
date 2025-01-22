@@ -8,7 +8,6 @@ from sklearn.metrics import precision_recall_fscore_support
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
 
-from ML.DL._Dataset import SbDataset
 from ML.DL._SimpleCNNsb2 import savecheckpoint, SimpleCNNsb, LightweightCNN
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
@@ -28,6 +27,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = ''
 retrain = True
+prefixchk = '0'
 saveby = 'f1' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -83,8 +83,8 @@ train_dataloader = DataLoader(trainsetsb, batch_size=batch_size, sampler=sampler
 test_dataloader = DataLoader(testsetsb, batch_size=batch_size, shuffle=False, num_workers=0, drop_last=False)
 
 # checl old model file exist
-if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk")): 
-	checkpoint = torch.load(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}.chk"), weights_only=False, map_location=device)
+if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}{prefixchk}.chk")): 
+	checkpoint = torch.load(os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}{prefixchk}.chk"), weights_only=False, map_location=device)
 	model = checkpoint["model"]
 	bestaccu = checkpoint["info"]["accu"]
 	bestloss = checkpoint["info"]["loss"]
@@ -189,7 +189,7 @@ for epoch in range(num_epochs):
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
 			}
-			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}{prefixchk}"))
 	elif saveby == 'loss':
 		if avg_test_loss < bestloss:
 			bestloss = avg_test_loss
@@ -202,7 +202,7 @@ for epoch in range(num_epochs):
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
 			}
-			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}{prefixchk}"))
 	elif saveby == 'f1':
 		if f1 > bestf1:
 			bestf1 = f1
@@ -215,6 +215,6 @@ for epoch in range(num_epochs):
 				'classes': trainsetsb.class_to_idx2,
 				'dtsturned': trainsetsb.turned
 			}
-			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}"))
+			savecheckpoint_textfile(model, info, os.path.join(_dir, f"_no_use/best{saveby}_checkpoint{turndtset}{prefixchk}"))
 	
 	
