@@ -26,7 +26,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 		f.write('loss: ' + str(info["loss"]) + '\n')
 		f.write('epoch: ' + str(_epoch + epoch))
 
-turndtset = 'up'
+turndtset = ''
 retrain = True
 saveby = 'f1' # accu, loss, f1
 batch_size = 32
