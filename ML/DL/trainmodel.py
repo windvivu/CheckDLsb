@@ -9,6 +9,7 @@ _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.append(_dir)
 
 from ML.DL._SimpleCNNsb2 import savecheckpoint, SimpleCNNsb, LightweightCNN, HybridCNN, EnhancedHybridCNN
+from ML.DL._DepthWiseCNN import DepthWiseCNN
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
 sys.path.append(_dir2)
@@ -27,7 +28,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = ''
 retrain = True
-prefixchk = '_ehb'
+prefixchk = '_dsb'
 saveby = 'f1' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -92,9 +93,9 @@ if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoi
 	_epoch = checkpoint["info"]["epoch"]
 else:
 	if trainsetsb.turned == '':
-		model = EnhancedHybridCNN().to(device)
+		model = DepthWiseCNN().to(device)
 	else:
-		model = EnhancedHybridCNN(num_classes=2).to(device)
+		model = DepthWiseCNN(num_classes=2).to(device)
 	bestaccu = 0
 	bestloss = 100
 	bestf1 = 0

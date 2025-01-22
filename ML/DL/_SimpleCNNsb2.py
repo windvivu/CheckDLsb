@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 
-import torch.nn as nn
-
 class SimpleCNNsb(nn.Module):
     def __init__(self, num_classes=3):
         super(SimpleCNNsb, self).__init__()

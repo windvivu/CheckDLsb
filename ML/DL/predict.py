@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	
 	batch_size = 32
 
-	pathCheckpoint = "_no_use/bestcheckpoint010.chk"  #####
+	pathCheckpoint = "_no_use/bestf1_checkpoint_ehb.chk"  #####
 	# pathCheckpoint2 = "_no_use/bestcheckpoint011.chk"  #####
 
 	_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
 
 	# kiểm tra xem "testsetsb.pth" đã tồn tại chưa, sau đo save hoặc load file với torch
-	if os.path.exists(os.path.join(_dir, "_no_use/testsetsb.pth")):
-		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsb.pth"), weights_only=False)
+	if os.path.exists(os.path.join(_dir, "_no_use/testsetsbx.pth")):
+		testsetsb = torch.load(os.path.join(_dir, "_no_use/testsetsbx.pth"), weights_only=False)
 	else:
 		print("No testset file found")
 		exit()
