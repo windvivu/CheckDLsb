@@ -27,7 +27,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = ''
 retrain = True
-prefixchk = '0'
+prefixchk = '_lwcnn'
 saveby = 'f1' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -92,9 +92,9 @@ if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoi
 	_epoch = checkpoint["info"]["epoch"]
 else:
 	if trainsetsb.turned == '':
-		model = SimpleCNNsb().to(device)
+		model = LightweightCNN().to(device)
 	else:
-		model = SimpleCNNsb(num_classes=2).to(device)
+		model = LightweightCNN(num_classes=2).to(device)
 	bestaccu = 0
 	bestloss = 100
 	bestf1 = 0
