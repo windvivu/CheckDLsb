@@ -3,7 +3,7 @@ import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
@@ -177,6 +177,7 @@ for epoch in range(num_epochs):
 	print(f'- Recall: {recall}') 
 	print(f'- F1-score: {f1}')
 	print(f'- Loss value of testing: {avg_test_loss}')
+	print(confusion_matrix(all_labels, all_predictions))
 	print('== End epoch', epoch+1, end=' - ')
 
 	if saveby == 'accu':
