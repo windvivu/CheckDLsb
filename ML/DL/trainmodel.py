@@ -28,7 +28,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = 'up'
 retrain = True
-prefixchk = '_hb'
+prefixchk = '_ehb'
 saveby = 'f1' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -94,9 +94,9 @@ if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoi
 	print(f'Re-train model from checkpoint: best{saveby}_checkpoint{turndtset}{prefixchk}')
 else:
 	if trainsetsb.turned == '':
-		model = HybridCNN().to(device)
+		model = EnhancedHybridCNN().to(device)
 	else:
-		model = HybridCNN(num_classes=2).to(device)
+		model = EnhancedHybridCNN(num_classes=2).to(device)
 	bestaccu = 0
 	bestloss = 100
 	bestf1 = 0
