@@ -35,8 +35,8 @@ from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb, SimpleCNNsbkernel5x5
 if __name__ == "__main__":
 	
 	reuse_sbdtset = True
-	test_phase = False
-	turndtset = 'none'
+	test_phase = True
+	turndtset = 'up'
 	if test_phase:
 		sysboltest = "NEO/USDT"
 		tftest = "4h"
