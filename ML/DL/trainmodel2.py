@@ -84,7 +84,7 @@ def find_optimal_threshold(y_true, y_prob, beta=2.0):
 _dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(_dir)
 
-from ML.DL._SimpleCNNsb import savecheckpoint, SimpleCNNsb
+from ML.DL._SimpleCNNsb2 import savecheckpoint, SimpleCNNsb, LightweightCNN, HybridCNN, EnhancedHybridCNN
 
 _dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _dir2 = os.path.dirname(_dir)
@@ -104,7 +104,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = 'up'
 retrain = True
-prefixchk = '_sbv2l1'
+prefixchk = '_enh1'
 saveby = 'loss' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -174,9 +174,9 @@ if retrain and os.path.exists(os.path.join(_dir, f"_no_use/best{saveby}_checkpoi
 	print(f'Re-train model from checkpoint: best{saveby}_checkpoint{turndtset}{prefixchk}')
 else:
 	if trainsetsb.turned == '':
-		model = SimpleCNNsb().to(device)
+		model = HybridCNN().to(device)
 	else:
-		model = SimpleCNNsb(num_classes=2).to(device)
+		model = HybridCNN(num_classes=2).to(device)
 	bestaccu = 0
 	bestloss = 100
 	bestf1 = 0
