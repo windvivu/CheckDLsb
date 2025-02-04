@@ -104,7 +104,7 @@ def savecheckpoint_textfile(model, info:dict, path_no_ext:str):
 
 turndtset = 'up'
 retrain = True
-prefixchk = '_sbv2l'
+prefixchk = '_sbv2l1'
 saveby = 'loss' # accu, loss, f1
 batch_size = 32
 num_epochs = 100000
@@ -151,7 +151,7 @@ for label in trainsetsb.targets:
 
 
 # Tăng trọng số cho lớp 1 thêm một chút #################
-class_weights[1] *= 1.2
+# class_weights[1] *= 1.2
 
 # ** Use WeightedRandomSampler
 sampler = WeightedRandomSampler(
