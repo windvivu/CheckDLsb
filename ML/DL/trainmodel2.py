@@ -152,7 +152,7 @@ for label in trainsetsb.targets:
 
 
 # Tăng trọng số cho lớp 1 thêm một chút #################
-# class_weights[1] *= 1.2
+class_weights[1] *= 1.2
 
 # ** Use WeightedRandomSampler
 sampler = WeightedRandomSampler(
